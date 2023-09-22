@@ -9,6 +9,7 @@
         Drag,
         DragEnd,
         Up,
-        Zoom
+        Zoom,
+        Move
     }
 }

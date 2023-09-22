@@ -10,7 +10,6 @@ namespace Suburb.Inputs
     {
         private readonly MouseControls inputControls;
 
-        // TODO move to project settings
         private readonly float dragTreshold = 5f;
 
         private IDisposable updateDisposable;
@@ -20,6 +19,7 @@ namespace Suburb.Inputs
 
         public ReactiveCommand<GestureEventData> OnPointerDown { get; } = new();
         public ReactiveCommand<GestureEventData> OnPointerUp { get; } = new();
+        public ReactiveCommand<GestureEventData> OnPointerMove { get; } = new();
         public ReactiveCommand<GestureEventData> OnDragStart { get; } = new();
         public ReactiveCommand<GestureEventData> OnDrag { get; } = new();
         public ReactiveCommand<GestureEventData> OnDragEnd { get; } = new();
@@ -37,6 +37,7 @@ namespace Suburb.Inputs
             inputControls.Mouse.Down.performed += PointerDown;
             inputControls.Mouse.Up.performed += PointerUp;
             inputControls.Mouse.Zoom.performed += Zoom;
+            inputControls.Mouse.Delta.performed += PointerMove;
         }
 
         public void Disable()
@@ -108,6 +109,11 @@ namespace Suburb.Inputs
         private void Zoom(CallbackContext context)
         {
             OnZoom.Execute(GetEventData(GestureType.Zoom));
+        }
+
+        private void PointerMove(CallbackContext context)
+        {
+            OnPointerMove.Execute(GetEventData(GestureType.Move));
         }
 
         private GestureEventData GetEventData (GestureType gestureType)
