@@ -1,7 +1,6 @@
 ﻿using UniRx;
 using UnityEngine;
 using static UnityEngine.InputSystem.InputAction;
-using Suburb.Utils;
 using System;
 
 namespace Suburb.Inputs
@@ -10,13 +9,14 @@ namespace Suburb.Inputs
     {
         private readonly MouseControls inputControls;
 
-        private readonly float dragTreshold = 5f;
-
         private IDisposable updateDisposable;
         private bool isDragging;
-
+        private bool isEnabled;
+        private Vector2 position;
+        private Vector2 delta;
         private GestureType currentGesture = GestureType.None;
-
+        private int usersCount;
+        
         public ReactiveCommand<GestureEventData> OnPointerDown { get; } = new();
         public ReactiveCommand<GestureEventData> OnPointerUp { get; } = new();
         public ReactiveCommand<GestureEventData> OnPointerMove { get; } = new();
@@ -24,11 +24,6 @@ namespace Suburb.Inputs
         public ReactiveCommand<GestureEventData> OnDrag { get; } = new();
         public ReactiveCommand<GestureEventData> OnDragEnd { get; } = new();
         public ReactiveCommand<GestureEventData> OnZoom { get; } = new();
-
-        public bool IsDragging(int pointerId)
-        {
-            return isDragging;
-        }
 
         public MouseGestureProvider()
         {
@@ -42,14 +37,30 @@ namespace Suburb.Inputs
 
         public void Disable()
         {
+            if (usersCount == 0)
+                return;
+
+            usersCount -= 1;
+
+            if (usersCount > 0)
+                return;
+            
+            currentGesture = GestureType.None;
+            position = Vector2.zero;
+            delta = Vector2.zero;
             updateDisposable?.Dispose();
             inputControls.Disable();
+            isDragging = false;
+            isEnabled = false;
         }
 
         public void Enable()
         {
-            updateDisposable?.Dispose();
+            usersCount += 1;
+            if (isEnabled)
+                return;
 
+            isEnabled = true;
             inputControls.Enable();
 
             updateDisposable = Observable.EveryUpdate()
@@ -60,9 +71,9 @@ namespace Suburb.Inputs
         {
             if (currentGesture == GestureType.None)
                 return;
-
-            if (currentGesture == GestureType.Down
-                && !inputControls.Mouse.Delta.ReadValue<Vector2>().IsClose(dragTreshold))
+            
+            CalcPositionAndDelta();
+            if (currentGesture == GestureType.Down && delta != Vector2.zero)
             {
                 isDragging = true;
                 currentGesture = GestureType.DragStart;
@@ -73,28 +84,33 @@ namespace Suburb.Inputs
             if (currentGesture == GestureType.DragStart)
             {
                 currentGesture = GestureType.Drag;
+                
+                if (delta == Vector2.zero)
+                    return;
+                
                 OnDrag.Execute(GetEventData(GestureType.Drag));
                 return;
             }
 
-            if (currentGesture == GestureType.Drag)
+            if (currentGesture == GestureType.Drag && delta != Vector2.zero)
             {
                 OnDrag.Execute(GetEventData(GestureType.Drag));
-                return;
             }
         }
 
         private void PointerDown(CallbackContext context)
         {
             currentGesture = GestureType.Down;
+            position = inputControls.Mouse.Position.ReadValue<Vector2>();
+            delta = Vector2.zero;
             OnPointerDown.Execute(GetEventData(GestureType.Down));
         }
 
         private void PointerUp(CallbackContext context)
         {
             currentGesture = GestureType.Up;
+            CalcPositionAndDelta();
             OnPointerUp.Execute(GetEventData(GestureType.Up));
-
             if (isDragging)
             {
                 currentGesture = GestureType.DragEnd;
@@ -111,6 +127,11 @@ namespace Suburb.Inputs
             OnZoom.Execute(GetEventData(GestureType.Zoom));
         }
 
+        private float GetZoom(float wheel)
+        {
+            return (150f + Mathf.Clamp(wheel, -100f, 100f)) / 150f;
+        }
+        
         private void PointerMove(CallbackContext context)
         {
             OnPointerMove.Execute(GetEventData(GestureType.Move));
@@ -121,11 +142,18 @@ namespace Suburb.Inputs
             return new GestureEventData()
             {
                 Id = inputControls.Mouse.Id.ReadValue<int>(),
-                Position = inputControls.Mouse.Position.ReadValue<Vector2>(),
-                Delta = inputControls.Mouse.Delta.ReadValue<Vector2>(),
-                ZoomDelta = inputControls.Mouse.Zoom.ReadValue<Vector2>() / 360,
+                Position = position,
+                Delta = delta,
+                Zoom =  GetZoom(inputControls.Mouse.Zoom.ReadValue<Vector2>().y),
                 Type = gestureType
             };
+        }
+
+        private void CalcPositionAndDelta()
+        {
+            Vector2 newPosition = inputControls.Mouse.Position.ReadValue<Vector2>();
+            delta = newPosition - position;
+            position = newPosition;
         }
     }
 }

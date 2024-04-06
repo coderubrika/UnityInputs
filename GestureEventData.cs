@@ -2,12 +2,12 @@
 
 namespace Suburb.Inputs
 {
-    public class GestureEventData
+    public struct GestureEventData
     {
         public int Id;
         public Vector2 Position;
         public Vector2 Delta;
-        public Vector2 ZoomDelta;
+        public float Zoom;
         public GestureType Type;
 
         public GestureEventData CopyWithType(GestureType type)
@@ -17,7 +17,7 @@ namespace Suburb.Inputs
                 Id = Id,
                 Position = Position,
                 Delta = Delta,
-                ZoomDelta = ZoomDelta,
+                Zoom = Zoom,
                 Type = type
             };
         }
