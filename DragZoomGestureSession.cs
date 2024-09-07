@@ -16,11 +16,11 @@ namespace Suburb.Inputs
         public ReactiveCommand<Vector2> OnUp { get; } = new();
         public ReactiveCommand<Vector2> OnDrag { get; } = new();
         public ReactiveCommand<float> OnZoom { get; } = new();
-        public int Layer { get; }
+
+        public RectTransform Bounds => bounds; 
         
-        public DragZoomGestureSession(int layer, RectTransform bounds, RectTransform[] excludedRects)
+        public DragZoomGestureSession(RectTransform bounds, RectTransform[] excludedRects)
         {
-            Layer = layer;
             this.bounds = bounds;
             this.excludedRects = excludedRects;
         }

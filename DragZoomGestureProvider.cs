@@ -18,7 +18,6 @@ namespace Suburb.Inputs
         private Vector2 touch0;
         private Vector2 touch1;
         private bool isBreakInput;
-        private int currentLayer;
         
         public DragZoomGestureProvider(
             MouseGestureProvider mouseGestureProvider,
@@ -28,16 +27,22 @@ namespace Suburb.Inputs
             this.touchGestureProvider = touchGestureProvider;
         }
 
-        public DragZoomGestureSession CreateSession(RectTransform bounds = null, RectTransform[] excludedRects = null)
-        {
-            return new DragZoomGestureSession(currentLayer, bounds, excludedRects);
-        }
-
-        private void MoveLayer(bool toUp)
-        {
-            currentLayer += toUp ? 1 : -1;
-            currentLayer = currentLayer < 0 ? 0 : currentLayer;
-        }
+        // как следует модифицировать код
+        // 1) конкретно в данном случае использования предполагаю
+        // заполнение списка сессий по порядку
+        // какую конкретно цель я преследую
+        // вообще цель такая что мне нужно организовать использование нескольких
+        // сессий одновременно
+        // прикол в том что иногда я не знаю в каком порядке они должны отрабатывать если накладываются 
+        // друг на друга
+        // самый простой случай если мы вообще за этим не следим, но бывает что я просто активирую 2 сервиса
+        // и тут лучше бы использовать заранее записанный приоритет но тогда эти сервисы должны типо знать друг о друге
+        // и тогда вообще нет смысла в приоритетах
+        // приоритеты заранее записанные херня и лучше их не использовать
+        // приоритов вообще не должно быть должен быть только связный список с сессиями, мы вызываем их по очереди
+        // мы имеем только одну активную сессию
+        // если мы пользовались сессией и подключилась новая старая должна завершить свое выполнение
+        
         
         public void Disable(DragZoomGestureSession session)
         {
@@ -177,8 +182,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutDown(position);
                 if (isBreakInput)
                     break;
@@ -189,8 +192,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutUp(position);
                 if (isBreakInput)
                     break;
@@ -201,8 +202,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutDrag(delta, position);
                 if (isBreakInput)
                     break;
@@ -213,8 +212,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutDragTouches(delta, touch0, touch1);
                 if (isBreakInput)
                     break;
@@ -225,8 +222,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutZoom(zoom);
                 if (isBreakInput)
                     break;
@@ -237,8 +232,6 @@ namespace Suburb.Inputs
         {
             foreach (var session in sessions)
             {
-                if (session.Layer < currentLayer)
-                    return;
                 session.PutZoomTouches(zoom, touch0, touch1);
                 if (isBreakInput)
                     break;
