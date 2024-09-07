@@ -5,7 +5,7 @@ using System;
 
 namespace Suburb.Inputs
 {
-    public class MouseGestureProvider : IGestureProvider
+    public class MouseGestureProvider
     {
         private readonly MouseControls inputControls;
 
@@ -17,13 +17,13 @@ namespace Suburb.Inputs
         private GestureType currentGesture = GestureType.None;
         private int usersCount;
         
-        public ReactiveCommand<GestureEventData> OnPointerDown { get; } = new();
-        public ReactiveCommand<GestureEventData> OnPointerUp { get; } = new();
-        public ReactiveCommand<GestureEventData> OnPointerMove { get; } = new();
-        public ReactiveCommand<GestureEventData> OnDragStart { get; } = new();
-        public ReactiveCommand<GestureEventData> OnDrag { get; } = new();
-        public ReactiveCommand<GestureEventData> OnDragEnd { get; } = new();
-        public ReactiveCommand<GestureEventData> OnZoom { get; } = new();
+        public ReactiveCommand<MouseEventData> OnPointerDown { get; } = new();
+        public ReactiveCommand<MouseEventData> OnPointerUp { get; } = new();
+        public ReactiveCommand<MouseEventData> OnPointerMove { get; } = new();
+        public ReactiveCommand<MouseEventData> OnDragStart { get; } = new();
+        public ReactiveCommand<MouseEventData> OnDrag { get; } = new();
+        public ReactiveCommand<MouseEventData> OnDragEnd { get; } = new();
+        public ReactiveCommand<MouseEventData> OnZoom { get; } = new();
 
         public MouseGestureProvider()
         {
@@ -77,7 +77,7 @@ namespace Suburb.Inputs
             {
                 isDragging = true;
                 currentGesture = GestureType.DragStart;
-                OnDragStart.Execute(GetEventData(GestureType.DragStart));
+                OnDragStart.Execute(GetEventData());
                 return;
             }
 
@@ -88,13 +88,13 @@ namespace Suburb.Inputs
                 if (delta == Vector2.zero)
                     return;
                 
-                OnDrag.Execute(GetEventData(GestureType.Drag));
+                OnDrag.Execute(GetEventData());
                 return;
             }
 
             if (currentGesture == GestureType.Drag && delta != Vector2.zero)
             {
-                OnDrag.Execute(GetEventData(GestureType.Drag));
+                OnDrag.Execute(GetEventData());
             }
         }
 
@@ -103,28 +103,27 @@ namespace Suburb.Inputs
             currentGesture = GestureType.Down;
             position = inputControls.Mouse.Position.ReadValue<Vector2>();
             delta = Vector2.zero;
-            OnPointerDown.Execute(GetEventData(GestureType.Down));
+            OnPointerDown.Execute(GetEventData());
         }
 
         private void PointerUp(CallbackContext context)
         {
             currentGesture = GestureType.Up;
             CalcPositionAndDelta();
-            OnPointerUp.Execute(GetEventData(GestureType.Up));
+            OnPointerUp.Execute(GetEventData());
             if (isDragging)
             {
                 currentGesture = GestureType.DragEnd;
                 isDragging = false;
-                OnDragEnd.Execute(GetEventData(GestureType.DragEnd));
+                OnDragEnd.Execute(GetEventData());
             }
 
             currentGesture = GestureType.None;
-            return;
         }
 
         private void Zoom(CallbackContext context)
         {
-            OnZoom.Execute(GetEventData(GestureType.Zoom));
+            OnZoom.Execute(GetEventData());
         }
 
         private float GetZoom(float wheel)
@@ -134,18 +133,17 @@ namespace Suburb.Inputs
         
         private void PointerMove(CallbackContext context)
         {
-            OnPointerMove.Execute(GetEventData(GestureType.Move));
+            OnPointerMove.Execute(GetEventData());
         }
 
-        private GestureEventData GetEventData (GestureType gestureType)
+        private MouseEventData GetEventData()
         {
-            return new GestureEventData()
+            return new MouseEventData
             {
                 Id = inputControls.Mouse.Id.ReadValue<int>(),
                 Position = position,
                 Delta = delta,
-                Zoom =  GetZoom(inputControls.Mouse.Zoom.ReadValue<Vector2>().y),
-                Type = gestureType
+                Zoom =  GetZoom(inputControls.Mouse.Zoom.ReadValue<Vector2>().y)
             };
         }
 

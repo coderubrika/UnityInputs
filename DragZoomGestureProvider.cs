@@ -147,32 +147,32 @@ namespace Suburb.Inputs
                 })
                 .AddTo(disposables);
             
-            touchGestureProvider.OnDragStartWithDoubleTouch
-                .Subscribe(data =>
-                {
-                    currentTouchId = data.Id;
-                    activeTouches.Add(data.Id);
-                    DragTouches(data.Delta);
-                    ZoomTouches(data.Zoom);
-                })
-                .AddTo(disposables);
+            // touchGestureProvider.OnDragStartWithDoubleTouch
+            //     .Subscribe(data =>
+            //     {
+            //         currentTouchId = data.Id;
+            //         activeTouches.Add(data.Id);
+            //         DragTouches(data.Delta);
+            //         ZoomTouches(data.Zoom);
+            //     })
+            //     .AddTo(disposables);
 
-            touchGestureProvider.OnDragEndWithDoubleTouch
-                .Subscribe(data =>
-                {
-                    activeTouches.Remove(data.Id);
-                    currentTouchId = activeTouches.Count == 0 ? -1 : activeTouches.First();
-                    DragTouches(data.Delta);
-                })
-                .AddTo(disposables);
+            // touchGestureProvider.OnDragEndWithDoubleTouch
+            //     .Subscribe(data =>
+            //     {
+            //         activeTouches.Remove(data.Id);
+            //         currentTouchId = activeTouches.Count == 0 ? -1 : activeTouches.First();
+            //         DragTouches(data.Delta);
+            //     })
+            //     .AddTo(disposables);
             
-            touchGestureProvider.OnDragWithDoubleTouch
-                .Subscribe(data =>
-                {
-                    DragTouches(data.Delta);
-                    ZoomTouches(data.Zoom);
-                })
-                .AddTo(disposables);
+            // touchGestureProvider.OnDragWithDoubleTouch
+            //     .Subscribe(data =>
+            //     {
+            //         DragTouches(data.Delta);
+            //         ZoomTouches(data.Zoom);
+            //     })
+            //     .AddTo(disposables);
             
             mouseGestureProvider.Enable();
             touchGestureProvider.Enable();
@@ -228,17 +228,17 @@ namespace Suburb.Inputs
             }
         }
         
-        private void ZoomTouches(float zoom)
-        {
-            foreach (var session in sessions)
-            {
-                session.PutZoomTouches(zoom, touch0, touch1);
-                if (isBreakInput)
-                    break;
-            }
-        }
+        // private void ZoomTouches(float zoom)
+        // {
+        //     foreach (var session in sessions)
+        //     {
+        //         session.PutZoomTouches(zoom, touch0, touch1);
+        //         if (isBreakInput)
+        //             break;
+        //     }
+        // }
 
-        private void PutTouch(GestureEventData data)
+        private void PutTouch(PointerEventData data)
         {
             if (data.Id == 0)
                 touch0 = data.Position;
