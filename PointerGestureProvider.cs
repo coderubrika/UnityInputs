@@ -105,7 +105,6 @@ namespace Suburb.Inputs
 
         private void HandleDown(PointerEventData eventData)
         {
-            this.Log($"HandleDown with id: {eventData.Id}");
             var node = sessions.First;
             while (node != null)
             {
@@ -116,15 +115,11 @@ namespace Suburb.Inputs
                     continue;
                 }
                 
-                SwipeGestureSession s = session as SwipeGestureSession;
-                this.Log($"Session: {s.Bounds.gameObject.name} Contain with id: {eventData.Id}");
-                
-                bool isBlockOther = session.IsBlockOther;
                 node = node.Next;
                 eventsBySessions[eventData.Id].Add(session);
                 session.PutDown(eventData);
                 
-                if (isBlockOther)
+                if (session.IsBlockOther)
                     break;
             }
         }
@@ -132,21 +127,13 @@ namespace Suburb.Inputs
         private void HandleDrag(PointerEventData eventData)
         {
             foreach (var session in eventsBySessions[eventData.Id])
-            {
-                SwipeGestureSession s = session as SwipeGestureSession;
-                this.Log($"HandleDrag for session: {s.Bounds.gameObject.name} with id {eventData.Id}");
                 session.PutDrag(eventData);
-            }
         }
         
         private void HandleUp(PointerEventData eventData)
         {
             foreach (var session in eventsBySessions[eventData.Id])
-            {
-                SwipeGestureSession s = session as SwipeGestureSession;
-                this.Log($"HandleUp for session: {s.Bounds.gameObject.name} with id {eventData.Id}");
                 session.PutUp(eventData);
-            }
             
             eventsBySessions[eventData.Id].Clear();
         }

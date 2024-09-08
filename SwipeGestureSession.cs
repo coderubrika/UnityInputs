@@ -25,6 +25,12 @@ namespace Suburb.Inputs
         
         public override bool Contain(Vector2 position)
         {
+            if (isFirstDownPassed)
+            {
+                IsBlockOther = false;
+                return false;
+            }
+            
             if (bounds != null && !bounds.Contain(position))
                 return false;
             
@@ -36,6 +42,7 @@ namespace Suburb.Inputs
 
         public override void PutDown(PointerEventData eventData)
         {
+            IsBlockOther = true;
             isFirstDownPassed = true;
             OnDown.Execute(eventData.Position);
         }
@@ -52,6 +59,7 @@ namespace Suburb.Inputs
             if (isFirstDownPassed)
                 OnUp.Execute(eventData.Position);
             isFirstDownPassed = false;
+            IsBlockOther = false;
         }
     }
 }
