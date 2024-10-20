@@ -5,31 +5,31 @@ using UniRx;
 
 namespace Suburb.Inputs
 {
-    public class PointerGestureProvider
+    public class PointerGestureConnector
     {
-        private readonly TouchGestureProvider touchGestureProvider;
-        private readonly MouseGestureProvider mouseGestureProvider;
+        private readonly TouchInputProvider touchInputProvider;
+        private readonly MouseInputProvider mouseInputProvider;
 
         private readonly HashSet<GestureSession>[] eventsBySessions;
         private readonly LinkedList<GestureSession> sessions = new();
         private readonly CompositeDisposable compositeDisposable = new();
         private readonly int mouseId;
         
-        public PointerGestureProvider(
-            TouchGestureProvider touchGestureProvider,
-            MouseGestureProvider mouseGestureProvider)
+        public PointerGestureConnector(
+            TouchInputProvider touchInputProvider,
+            MouseInputProvider mouseInputProvider)
         {
-            this.touchGestureProvider = touchGestureProvider;
-            this.mouseGestureProvider = mouseGestureProvider;
+            this.touchInputProvider = touchInputProvider;
+            this.mouseInputProvider = mouseInputProvider;
 
-            mouseId = touchGestureProvider.SupportedTouches;
+            mouseId = touchInputProvider.SupportedTouches;
             
             eventsBySessions = new HashSet<GestureSession>[mouseId + 1];
             for (int i = 0; i <= mouseId; i++)
                 eventsBySessions[i] = new HashSet<GestureSession>();
         }
         
-        public IDisposable AddSession(GestureSession gestureSession)
+        public IDisposable Connect(GestureSession gestureSession)
         {
             if (sessions.Count == 0)
                 Enable();
@@ -49,10 +49,12 @@ namespace Suburb.Inputs
 
         private void Enable()
         {
-            touchGestureProvider.Enable();
-            mouseGestureProvider.Enable();
+            touchInputProvider.Enable()
+                .AddTo(compositeDisposable);
+            mouseInputProvider.Enable()
+                .AddTo(compositeDisposable);
             
-            mouseGestureProvider.OnPointerDown
+            mouseInputProvider.OnPointerDown
                 .Select(eventData =>
                 {
                     eventData.Id = mouseId;
@@ -61,13 +63,13 @@ namespace Suburb.Inputs
                 .Subscribe(HandleDown)
                 .AddTo(compositeDisposable);
 
-            touchGestureProvider.OnPointerDown
+            touchInputProvider.OnPointerDown
                 .Subscribe(HandleDown)
                 .AddTo(compositeDisposable);
             
-            mouseGestureProvider.OnDrag
-                .Merge(mouseGestureProvider.OnDragStart)
-                .Merge(mouseGestureProvider.OnDragEnd)
+            mouseInputProvider.OnDrag
+                .Merge(mouseInputProvider.OnDragStart)
+                .Merge(mouseInputProvider.OnDragEnd)
                 .Select(eventData =>
                 {
                     eventData.Id = mouseId;
@@ -76,13 +78,13 @@ namespace Suburb.Inputs
                 .Subscribe(HandleDrag)
                 .AddTo(compositeDisposable);
             
-            touchGestureProvider.OnDrag
-                .Merge(touchGestureProvider.OnDragStart)
-                .Merge(touchGestureProvider.OnDragEnd)
+            touchInputProvider.OnDrag
+                .Merge(touchInputProvider.OnDragStart)
+                .Merge(touchInputProvider.OnDragEnd)
                 .Subscribe(HandleDrag)
                 .AddTo(compositeDisposable);
             
-            mouseGestureProvider.OnPointerUp
+            mouseInputProvider.OnPointerUp
                 .Select(eventData =>
                 {
                     eventData.Id = mouseId;
@@ -91,7 +93,7 @@ namespace Suburb.Inputs
                 .Subscribe(HandleUp)
                 .AddTo(compositeDisposable);
 
-            touchGestureProvider.OnPointerUp
+            touchInputProvider.OnPointerUp
                 .Subscribe(HandleUp)
                 .AddTo(compositeDisposable);
         }
@@ -99,8 +101,6 @@ namespace Suburb.Inputs
         private void Disable()
         {
             compositeDisposable.Clear();
-            touchGestureProvider.Disable();
-            mouseGestureProvider.Disable();
         }
 
         private void HandleDown(PointerEventData eventData)

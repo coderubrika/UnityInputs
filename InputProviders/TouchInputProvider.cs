@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace Suburb.Inputs
 {
-    public class TouchGestureProvider
+    public class TouchInputProvider
     {
         private readonly GestureType[] touchStates;
         private readonly bool[] isDragged;
@@ -32,7 +32,7 @@ namespace Suburb.Inputs
         //public ReactiveCommand<GestureEventData> OnDragStartWithDoubleTouch { get; } = new();
         //public ReactiveCommand<GestureEventData> OnDragEndWithDoubleTouch { get; } = new();
 
-        public TouchGestureProvider()
+        public TouchInputProvider()
         {
             touchStates = Enumerable.Repeat(GestureType.None, SupportedTouches).ToArray();
             isDragged = new bool[SupportedTouches];
@@ -40,7 +40,7 @@ namespace Suburb.Inputs
             deltas = Enumerable.Repeat(Vector2.zero, SupportedTouches).ToArray();
         }
         
-        public void Disable()
+        private void Disable()
         {
             if (usersCount == 0)
                 return;
@@ -65,17 +65,19 @@ namespace Suburb.Inputs
             isEnabled = false;
         }
 
-        public void Enable()
+        public IDisposable Enable()
         {
             usersCount += 1;
             
             if (isEnabled || touchStates.Length == 0)
-                return;
+                return new DisposableObject(Disable);
 
             isEnabled = true;
 
             updateDisposable = Observable.EveryUpdate()
                 .Subscribe(_ => Update());
+            
+            return new DisposableObject(Disable);
         }
 
         private void Update()

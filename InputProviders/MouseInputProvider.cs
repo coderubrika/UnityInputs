@@ -2,10 +2,11 @@
 using UnityEngine;
 using static UnityEngine.InputSystem.InputAction;
 using System;
+using Suburb.Utils;
 
 namespace Suburb.Inputs
 {
-    public class MouseGestureProvider
+    public class MouseInputProvider
     {
         private readonly MouseControls inputControls;
 
@@ -25,7 +26,7 @@ namespace Suburb.Inputs
         public ReactiveCommand<MouseEventData> OnDragEnd { get; } = new();
         public ReactiveCommand<MouseEventData> OnZoom { get; } = new();
 
-        public MouseGestureProvider()
+        public MouseInputProvider()
         {
             inputControls = new MouseControls();
 
@@ -35,7 +36,7 @@ namespace Suburb.Inputs
             inputControls.Mouse.Delta.performed += PointerMove;
         }
 
-        public void Disable()
+        private void Disable()
         {
             if (usersCount == 0)
                 return;
@@ -54,17 +55,19 @@ namespace Suburb.Inputs
             isEnabled = false;
         }
 
-        public void Enable()
+        public IDisposable Enable()
         {
             usersCount += 1;
             if (isEnabled)
-                return;
+                return new DisposableObject(Disable);
 
             isEnabled = true;
             inputControls.Enable();
 
             updateDisposable = Observable.EveryUpdate()
                 .Subscribe(_ => Update());
+            
+            return new DisposableObject(Disable);
         }
 
         private void Update()

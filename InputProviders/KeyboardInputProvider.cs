@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Suburb.Utils;
 using UnityEngine.InputSystem;
 using UniRx;
 
 namespace Suburb.Inputs
 {
-    public class KeyboardProvider
+    public class KeyboardInputProvider
     {
         private readonly Dictionary<Key, KeyData> keySessions = new();
         private readonly HashSet<KeyboardSession> sessions = new();
@@ -15,31 +14,12 @@ namespace Suburb.Inputs
         private Dictionary<Key, KeyData>.KeyCollection currentKeys;
         private IDisposable updateDisposable;
 
-        public IObservable<bool> SubscribeSessionOnKey(KeyboardSession session, Key key)
-        {
-            if (!sessions.Contains(session))
-                return null;
-
-            if (keySessions.TryGetValue(key, out KeyData keyData))
-            {
-                keyData.Sessions.Add(session);
-                return keyData.OnPressed;
-            }
-
-            KeyData newKeyData = new KeyData();
-            newKeyData.Sessions.Add(session);
-            keySessions.Add(key, newKeyData);
-            currentKeys = keySessions.Keys;
-            return newKeyData.OnPressed;
-        }
-
-        public IDisposable Connect(KeyboardSession session)
+        public KeyboardSession CreateSession()
         {
             if (sessions.Count == 0)
                 Enable();
-            
-            sessions.Add(session);
-            return new DisposableObject(() =>
+            KeyboardSession session = null;
+            session = new KeyboardSession(SubscribeSessionOnKey, () =>
             {
                 foreach (var key in keySessions.Keys)
                 {
@@ -61,8 +41,28 @@ namespace Suburb.Inputs
                 if (sessions.Count == 0)
                     Disable();
             });
+            sessions.Add(session);
+            return session;
         }
 
+        private IObservable<bool> SubscribeSessionOnKey(KeyboardSession session, Key key)
+        {
+            if (!sessions.Contains(session))
+                return null;
+
+            if (keySessions.TryGetValue(key, out KeyData keyData))
+            {
+                keyData.Sessions.Add(session);
+                return keyData.OnPressed;
+            }
+
+            KeyData newKeyData = new KeyData();
+            newKeyData.Sessions.Add(session);
+            keySessions.Add(key, newKeyData);
+            currentKeys = keySessions.Keys;
+            return newKeyData.OnPressed;
+        }
+        
         private void Enable()
         {
             updateDisposable = Observable.EveryUpdate()

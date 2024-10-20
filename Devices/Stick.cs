@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Suburb.Utils;
 using UniRx;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 namespace Suburb.Inputs
 {
-    public class VirtualJoystick : MonoBehaviour
+    public class Stick : MonoBehaviour
     {
         [SerializeField] private RectTransform joystickOrigin;
         [SerializeField] private RectTransform joystickHandler;
@@ -19,7 +20,7 @@ namespace Suburb.Inputs
         
         public ReactiveProperty<(Vector2 Direction, float Force)> OnDirectionAndForce { get; } = new();
         
-        public void Connect(SwipeGestureSession gestureSession)
+        public IDisposable Connect(SwipeGestureSession gestureSession)
         {
             canvasGroup.alpha = 0;
             rectRadius = joystickOrigin.sizeDelta.x / 2;
@@ -50,19 +51,6 @@ namespace Suburb.Inputs
                     anchoredPosition = normAncPos * magnitude;
                     joystickHandler.anchoredPosition = anchoredPosition;
                     OnDirectionAndForce.Value = (normAncPos, magnitude / rectRadius);
-
-                    // for second variant in future
-                    // joystickHandler.position += newDelta.To3();
-                    // Vector2 handlerAnchoredPosition = joystickHandler.anchoredPosition;
-                    // float anchoredPositionMagnitude = handlerAnchoredPosition.magnitude;
-                    // Vector2 normalizedHandlerAnchoredPosition = handlerAnchoredPosition / anchoredPositionMagnitude;
-                    //
-                    // if (anchoredPositionMagnitude > rectRadius)
-                    // {
-                    //     Vector2 newHandlerAnchoredPosition = normalizedHandlerAnchoredPosition * rectRadius;
-                    //     joystickHandler.anchoredPosition = newHandlerAnchoredPosition;
-                    // }
-
                 })
                 .AddTo(compositeDisposable);
             
@@ -74,9 +62,11 @@ namespace Suburb.Inputs
                     canvasGroup.DOFade(0, 0.4f);
                 })
                 .AddTo(compositeDisposable);
+
+            return new DisposableObject(Disconnect);
         }
 
-        public void Disconnect()
+        private void Disconnect()
         {
             compositeDisposable.Clear();
         }

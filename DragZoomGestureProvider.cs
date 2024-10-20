@@ -7,8 +7,8 @@ namespace Suburb.Inputs
 {
     public class DragZoomGestureProvider
     {
-        private readonly MouseGestureProvider mouseGestureProvider;
-        private readonly TouchGestureProvider touchGestureProvider;
+        private readonly MouseInputProvider mouseInputProvider;
+        private readonly TouchInputProvider touchInputProvider;
         
         private readonly CompositeDisposable disposables = new();
         private readonly HashSet<DragZoomGestureSession> sessions = new();
@@ -20,11 +20,11 @@ namespace Suburb.Inputs
         private bool isBreakInput;
         
         public DragZoomGestureProvider(
-            MouseGestureProvider mouseGestureProvider,
-            TouchGestureProvider touchGestureProvider)
+            MouseInputProvider mouseInputProvider,
+            TouchInputProvider touchInputProvider)
         {
-            this.mouseGestureProvider = mouseGestureProvider;
-            this.touchGestureProvider = touchGestureProvider;
+            this.mouseInputProvider = mouseInputProvider;
+            this.touchInputProvider = touchInputProvider;
         }
 
         // как следует модифицировать код
@@ -54,8 +54,8 @@ namespace Suburb.Inputs
             
             activeTouches.Clear();
             disposables.Clear();
-            mouseGestureProvider.Disable();
-            touchGestureProvider.Disable();
+            //mouseGestureProvider.Disable();
+            //touchGestureProvider.Disable();
         }
 
         public void Enable(DragZoomGestureSession session)
@@ -68,25 +68,25 @@ namespace Suburb.Inputs
             if (sessions.Count > 1)
                 return;
             
-            mouseGestureProvider.OnPointerDown
+            mouseInputProvider.OnPointerDown
                 .Subscribe(data => Down(data.Position))
                 .AddTo(disposables);
             
-            mouseGestureProvider.OnPointerUp
+            mouseInputProvider.OnPointerUp
                 .Subscribe(data => Up(data.Position))
                 .AddTo(disposables);
 
-            mouseGestureProvider.OnZoom
+            mouseInputProvider.OnZoom
                 .Subscribe(data => Zoom(data.Zoom))
                 .AddTo(disposables);
             
-            mouseGestureProvider.OnDrag
-                .Merge(mouseGestureProvider.OnDragStart)
-                .Merge(mouseGestureProvider.OnDragEnd)
+            mouseInputProvider.OnDrag
+                .Merge(mouseInputProvider.OnDragStart)
+                .Merge(mouseInputProvider.OnDragEnd)
                 .Subscribe(data => Drag(data.Delta, data.Position))
                 .AddTo(disposables);
 
-            touchGestureProvider.OnPointerDown
+            touchInputProvider.OnPointerDown
                 .Subscribe(data =>
                 {
                     PutTouch(data);
@@ -96,7 +96,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(disposables);
             
-            touchGestureProvider.OnPointerUp
+            touchInputProvider.OnPointerUp
                 .Subscribe(data =>
                 {
                     PutTouch(data);
@@ -111,7 +111,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(disposables);
             
-            touchGestureProvider.OnDragStart
+            touchInputProvider.OnDragStart
                 .Subscribe(data =>
                 {
                     PutTouch(data);
@@ -123,7 +123,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(disposables);
 
-            touchGestureProvider.OnDrag
+            touchInputProvider.OnDrag
                 .Subscribe(data =>
                 {
                     PutTouch(data);
@@ -135,7 +135,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(disposables);
             
-            touchGestureProvider.OnDragEnd
+            touchInputProvider.OnDragEnd
                 .Subscribe(data =>
                 {
                     PutTouch(data);
@@ -174,8 +174,8 @@ namespace Suburb.Inputs
             //     })
             //     .AddTo(disposables);
             
-            mouseGestureProvider.Enable();
-            touchGestureProvider.Enable();
+            mouseInputProvider.Enable();
+            touchInputProvider.Enable();
         }
         
         private void Down(Vector2 position)
