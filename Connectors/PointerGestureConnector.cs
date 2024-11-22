@@ -10,8 +10,8 @@ namespace Suburb.Inputs
         private readonly TouchInputProvider touchInputProvider;
         private readonly MouseInputProvider mouseInputProvider;
 
-        private readonly HashSet<GestureSession>[] eventsBySessions;
-        private readonly LinkedList<GestureSession> sessions = new();
+        private readonly HashSet<IGestureSession>[] eventsBySessions;
+        private readonly LinkedList<IGestureSession> sessions = new();
         private readonly CompositeDisposable compositeDisposable = new();
         private readonly int mouseId;
         
@@ -24,12 +24,12 @@ namespace Suburb.Inputs
 
             mouseId = touchInputProvider.SupportedTouches;
             
-            eventsBySessions = new HashSet<GestureSession>[mouseId + 1];
+            eventsBySessions = new HashSet<IGestureSession>[mouseId + 1];
             for (int i = 0; i <= mouseId; i++)
-                eventsBySessions[i] = new HashSet<GestureSession>();
+                eventsBySessions[i] = new HashSet<IGestureSession>();
         }
         
-        public IDisposable Connect(GestureSession gestureSession)
+        public IDisposable Connect(IGestureSession gestureSession)
         {
             if (sessions.Count == 0)
                 Enable();
@@ -62,11 +62,11 @@ namespace Suburb.Inputs
                 })
                 .Subscribe(HandleDown)
                 .AddTo(compositeDisposable);
-
-            touchInputProvider.OnPointerDown
-                .Subscribe(HandleDown)
-                .AddTo(compositeDisposable);
-            
+            //
+            // touchInputProvider.OnDown
+            //     .Subscribe(HandleDown)
+            //     .AddTo(compositeDisposable);
+            //
             mouseInputProvider.OnDrag
                 .Merge(mouseInputProvider.OnDragStart)
                 .Merge(mouseInputProvider.OnDragEnd)
@@ -77,13 +77,13 @@ namespace Suburb.Inputs
                 })
                 .Subscribe(HandleDrag)
                 .AddTo(compositeDisposable);
-            
-            touchInputProvider.OnDrag
-                .Merge(touchInputProvider.OnDragStart)
-                .Merge(touchInputProvider.OnDragEnd)
-                .Subscribe(HandleDrag)
-                .AddTo(compositeDisposable);
-            
+            //
+            // touchInputProvider.OnDrag
+            //     .Merge(touchInputProvider.OnDragStart)
+            //     .Merge(touchInputProvider.OnDragEnd)
+            //     .Subscribe(HandleDrag)
+            //     .AddTo(compositeDisposable);
+            //
             mouseInputProvider.OnPointerUp
                 .Select(eventData =>
                 {
@@ -92,10 +92,10 @@ namespace Suburb.Inputs
                 })
                 .Subscribe(HandleUp)
                 .AddTo(compositeDisposable);
-
-            touchInputProvider.OnPointerUp
-                .Subscribe(HandleUp)
-                .AddTo(compositeDisposable);
+            //
+            // touchInputProvider.OnUp
+            //     .Subscribe(HandleUp)
+            //     .AddTo(compositeDisposable);
         }
 
         private void Disable()
@@ -109,13 +109,14 @@ namespace Suburb.Inputs
             while (node != null)
             {
                 var session = node.Value;
-                if (!session.Contain(eventData.Position))
+                if (!session.Contain(eventData))
                 {
                     node = node.Next;
                     continue;
                 }
                 
                 node = node.Next;
+                
                 eventsBySessions[eventData.Id].Add(session);
                 session.PutDown(eventData);
                 

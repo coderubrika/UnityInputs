@@ -86,66 +86,66 @@ namespace Suburb.Inputs
                 .Subscribe(data => Drag(data.Delta, data.Position))
                 .AddTo(disposables);
 
-            touchInputProvider.OnPointerDown
-                .Subscribe(data =>
-                {
-                    PutTouch(data);
-                    currentTouchId = data.Id;
-                    activeTouches.Add(data.Id);
-                    Down(data.Position);
-                })
-                .AddTo(disposables);
+            // touchInputProvider.OnPointerDown
+            //     .Subscribe(data =>
+            //     {
+            //         PutTouch(data);
+            //         currentTouchId = data.Id;
+            //         activeTouches.Add(data.Id);
+            //         Down(data.Position);
+            //     })
+            //     .AddTo(disposables);
+            //
+            // touchInputProvider.OnPointerUp
+            //     .Subscribe(data =>
+            //     {
+            //         PutTouch(data);
+            //         activeTouches.Remove(data.Id);
+            //         
+            //         if (currentTouchId != data.Id)
+            //             return;
+            //
+            //         Up(data.Position);
+            //         
+            //         currentTouchId = activeTouches.Count == 0 ? -1 : activeTouches.First();
+            //     })
+            //     .AddTo(disposables);
             
-            touchInputProvider.OnPointerUp
-                .Subscribe(data =>
-                {
-                    PutTouch(data);
-                    activeTouches.Remove(data.Id);
-                    
-                    if (currentTouchId != data.Id)
-                        return;
-
-                    Up(data.Position);
-                    
-                    currentTouchId = activeTouches.Count == 0 ? -1 : activeTouches.First();
-                })
-                .AddTo(disposables);
-            
-            touchInputProvider.OnDragStart
-                .Subscribe(data =>
-                {
-                    PutTouch(data);
-                    
-                    if (currentTouchId != data.Id)
-                        return;
-
-                    DragTouches(data.Delta);
-                })
-                .AddTo(disposables);
-
-            touchInputProvider.OnDrag
-                .Subscribe(data =>
-                {
-                    PutTouch(data);
-                    
-                    if (currentTouchId != data.Id)
-                        return;
-
-                    DragTouches(data.Delta);
-                })
-                .AddTo(disposables);
-            
-            touchInputProvider.OnDragEnd
-                .Subscribe(data =>
-                {
-                    PutTouch(data);
-                    
-                    if (currentTouchId != data.Id)
-                        return;
-                    
-                    DragTouches(data.Delta);
-                })
-                .AddTo(disposables);
+            // touchInputProvider.OnDragStart
+            //     .Subscribe(data =>
+            //     {
+            //         PutTouch(data);
+            //         
+            //         if (currentTouchId != data.Id)
+            //             return;
+            //
+            //         DragTouches(data.Delta);
+            //     })
+            //     .AddTo(disposables);
+            //
+            // touchInputProvider.OnDrag
+            //     .Subscribe(data =>
+            //     {
+            //         PutTouch(data);
+            //         
+            //         if (currentTouchId != data.Id)
+            //             return;
+            //
+            //         DragTouches(data.Delta);
+            //     })
+            //     .AddTo(disposables);
+            //
+            // touchInputProvider.OnDragEnd
+            //     .Subscribe(data =>
+            //     {
+            //         PutTouch(data);
+            //         
+            //         if (currentTouchId != data.Id)
+            //             return;
+            //         
+            //         DragTouches(data.Delta);
+            //     })
+            //     .AddTo(disposables);
             
             // touchGestureProvider.OnDragStartWithDoubleTouch
             //     .Subscribe(data =>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Suburb.Utils;
 using UniRx;
@@ -13,24 +14,23 @@ namespace Suburb.Inputs
         private readonly bool[] isDragged;
         private readonly Vector2[] positions;
         private readonly Vector2[] deltas;
+        private readonly List<PointerEventData> downEvents = new();
+        private readonly List<PointerEventData> dragStartEvents = new();
+        private readonly List<PointerEventData> dragEvents = new();
+        private readonly List<PointerEventData> dragEndEvents = new();
+        private readonly List<PointerEventData> upEvents = new();
+        
         private bool isEnabled;
-        //private bool isDoubleTouchDragging;
-        //private Vector2 middlePoint;
-        //private float doubleTouchDistance;
         private IDisposable updateDisposable;
         private int usersCount;
         
         public int SupportedTouches => Touchscreen.current == null ? 0 : Touchscreen.current.touches.Count;
         
-        public ReactiveCommand<PointerEventData> OnPointerDown { get; } = new();
-        public ReactiveCommand<PointerEventData> OnPointerUp { get; } = new();
-        public ReactiveCommand<PointerEventData> OnDragStart { get; } = new();
-        public ReactiveCommand<PointerEventData> OnDrag { get; } = new();
-        public ReactiveCommand<PointerEventData> OnDragEnd { get; } = new();
-        
-        //public ReactiveCommand<GestureEventData> OnDragWithDoubleTouch { get; } = new();
-        //public ReactiveCommand<GestureEventData> OnDragStartWithDoubleTouch { get; } = new();
-        //public ReactiveCommand<GestureEventData> OnDragEndWithDoubleTouch { get; } = new();
+        public ReactiveCommand<IReadOnlyCollection<PointerEventData>> OnDown { get; } = new();
+        public ReactiveCommand<IReadOnlyCollection<PointerEventData>> OnUp { get; } = new();
+        public ReactiveCommand<IReadOnlyCollection<PointerEventData>> OnDragStart { get; } = new();
+        public ReactiveCommand<IReadOnlyCollection<PointerEventData>> OnDrag { get; } = new();
+        public ReactiveCommand<IReadOnlyCollection<PointerEventData>> OnDragEnd { get; } = new();
 
         public TouchInputProvider()
         {
@@ -56,10 +56,6 @@ namespace Suburb.Inputs
                 positions[i] = Vector2.zero;
                 deltas[i] = Vector2.zero;
             }
-
-            // isDoubleTouchDragging = false;
-            // middlePoint = Vector2.zero;
-            // doubleTouchDistance = 0;
             
             updateDisposable?.Dispose();
             isEnabled = false;
@@ -82,70 +78,40 @@ namespace Suburb.Inputs
 
         private void Update()
         {
+            ClearEvents();
+            
             for(int touchId = 0; touchId < touchStates.Length; touchId++)
                 SetupTouch(touchId);
 
-            //SetupDoubleTouch();
+            PushEvents();
         }
 
-        // private void SetupDoubleTouch()
-        // {
-        //     bool isAllowedDoubleTouch = touchStates[0] == GestureType.Drag && touchStates[1] == GestureType.Drag;
-        //
-        //     if (!isAllowedDoubleTouch)
-        //     {
-        //         if (isDoubleTouchDragging)
-        //         {
-        //             int touchId = touchStates[0] != GestureType.Drag ? 0 : 1;
-        //             isDoubleTouchDragging = false;
-        //             OnDragEndWithDoubleTouch.Execute(GetEventData(touchId, GestureType.DragEnd));
-        //         }
-        //
-        //         return;
-        //     }
-        //     
-        //     Vector2 newMiddlePoint = (positions[0] + positions[1]) / 2;
-        //     float newDoubleTouchDistance = (positions[1] - positions[0]).magnitude;
-        //
-        //     if (!isDoubleTouchDragging)
-        //     {
-        //         isDoubleTouchDragging = true;
-        //
-        //         Vector2 touch0Position = positions[0] - deltas[0];
-        //         Vector2 touch1Position = positions[1] - deltas[1];
-        //
-        //         middlePoint = (touch0Position + touch1Position) / 2;
-        //         doubleTouchDistance = (touch1Position - touch0Position).magnitude;
-        //
-        //         OnDragStartWithDoubleTouch.Execute(new GestureEventData()
-        //         {
-        //             Id = supportedTouches + 1,
-        //             Delta = deltas[0],
-        //             Position = middlePoint,
-        //             Zoom = 1,
-        //             Type = GestureType.DragStart
-        //         });
-        //     }
-        //
-        //     Vector2 moveDelta = newMiddlePoint - middlePoint;
-        //
-        //     float resultZoom = 1f;
-        //     
-        //     if (doubleTouchDistance != 0)
-        //         resultZoom = newDoubleTouchDistance / doubleTouchDistance;
-        //
-        //     middlePoint = newMiddlePoint;
-        //     doubleTouchDistance = newDoubleTouchDistance;
-        //
-        //     OnDragWithDoubleTouch.Execute(new GestureEventData()
-        //     {
-        //         Id = supportedTouches + 1,
-        //         Delta = moveDelta,
-        //         Position = middlePoint,
-        //         Zoom = resultZoom,
-        //         Type = GestureType.Drag
-        //     });
-        // }
+        private void PushEvents()
+        {
+            if (downEvents.Count > 0)
+                OnDown.Execute(downEvents);
+
+            if (dragStartEvents.Count > 0)
+                OnDragStart.Execute(dragStartEvents);
+            
+            if (dragEvents.Count > 0)
+                OnDrag.Execute(dragEvents);
+            
+            if (upEvents.Count > 0)
+                OnUp.Execute(upEvents);
+            
+            if (dragEndEvents.Count > 0)
+                OnDragEnd.Execute(dragEndEvents);
+        }
+
+        private void ClearEvents()
+        {
+            downEvents.Clear();
+            dragStartEvents.Clear();
+            dragEvents.Clear();
+            dragEndEvents.Clear();
+            upEvents.Clear();
+        }
 
         private void SetupTouch(int touchId)
         {
@@ -215,29 +181,29 @@ namespace Suburb.Inputs
 
         private void SendPointerDown(int touchId)
         {
-            OnPointerDown.Execute(GetEventData(touchId));
+            downEvents.Add(GetEventData(touchId));
         }
 
         private void SendPointerUp(int touchId)
         {
-            OnPointerUp.Execute(GetEventData(touchId));
+            upEvents.Add(GetEventData(touchId));
         }
 
         private void SendDragStart(int touchId)
         {
             isDragged[touchId] = true;
-            OnDragStart.Execute(GetEventData(touchId));
+            dragStartEvents.Add(GetEventData(touchId));
         }
 
         private void SendDrag(int touchId)
         {
-            OnDrag.Execute(GetEventData(touchId));
+            dragEvents.Add(GetEventData(touchId));
         }
 
         private void SendDragEnd(int touchId)
         {
             isDragged[touchId] = false;
-            OnDragEnd.Execute(GetEventData(touchId));
+            dragEndEvents.Add(GetEventData(touchId));
         }
 
         private void CalcPositionAndDelta(int touchId)
