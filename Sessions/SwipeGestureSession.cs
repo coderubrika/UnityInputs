@@ -10,23 +10,24 @@ namespace Suburb.Inputs
         private readonly RectTransform bounds;
         private readonly RectTransform[] excludedRects;
 
-        protected int FirstId = -1;
+        private bool isUsed;
         
         public ReactiveCommand<Vector2> OnDown { get; } = new();
         public ReactiveCommand<Vector2> OnUp { get; } = new();
         public ReactiveCommand<Vector2> OnDrag { get; } = new();
-        public bool IsBlockOther { get; protected set; }
+        public bool IsBlockOther { get; private set; }
+        
         public SwipeGestureSession(RectTransform bounds, RectTransform[] excludedRects)
         {
             this.bounds = bounds;
             this.excludedRects = excludedRects;
         }
 
-        public virtual bool Contain(PointerEventData eventData)
+        public virtual bool Contain(Vector2 position)
         {
-            if (FirstId == -1)
+            if (!isUsed)
             {
-                IsBlockOther = CheckBound(eventData.Position);
+                IsBlockOther = CheckBound(position);
                 return IsBlockOther;
             }
             
@@ -34,21 +35,21 @@ namespace Suburb.Inputs
             return false;
         }
 
-        public virtual void PutDown(PointerEventData eventData)
+        public virtual void PutDown(Vector2 position)
         {
-            FirstId = eventData.Id;
-            OnDown.Execute(eventData.Position);
+            isUsed = true;
+            OnDown.Execute(position);
         }
 
-        public virtual void PutDrag(PointerEventData eventData)
+        public virtual void PutDrag(Vector2 delta)
         {
-            OnDrag.Execute(eventData.Delta);
+            OnDrag.Execute(delta);
         }
 
-        public virtual void PutUp(PointerEventData eventData)
+        public virtual void PutUp(Vector2 position)
         {
-            OnUp.Execute(eventData.Position);
-            FirstId = -1;
+            OnUp.Execute(position);
+            isUsed = false;
         }
 
         public Vector3 ToCanvasDirection(Vector2 delta)

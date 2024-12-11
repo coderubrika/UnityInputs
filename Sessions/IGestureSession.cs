@@ -7,10 +7,10 @@ namespace Suburb.Inputs
     {
         public bool IsBlockOther { get; }
         
-        public bool Contain(PointerEventData pointerEventData);
-        public void PutDown(PointerEventData pointerEventData);
-        public void PutDrag(PointerEventData pointerEventData);
+        public bool Contain(Vector2 position);
+        public void PutDown(Vector2 position);
+        public void PutDrag(Vector2 delta);
 
-        public void PutUp(PointerEventData pointerEventData);
+        public void PutUp(Vector2 position);
     }
 }
