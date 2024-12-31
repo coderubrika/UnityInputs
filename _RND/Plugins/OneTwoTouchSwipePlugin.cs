@@ -79,7 +79,7 @@ namespace Suburb.Inputs
                 .AddTo(touchProviderDisposables);
                 
             touchProvider.OnDrag
-                .Where(_ => gestureType == GestureType.DragStart)
+                .Where(_ => gestureType == GestureType.Drag)
                 .Subscribe(_ => Drag())
                 .AddTo(touchProviderDisposables);
         }
@@ -108,7 +108,7 @@ namespace Suburb.Inputs
                 .AddTo(touchProviderDisposables);
                 
             touchProvider.OnDrag
-                .Where(_ => gestureType == GestureType.DragStart)
+                .Where(_ => gestureType == GestureType.Drag)
                 .Subscribe(_ => Drag())
                 .AddTo(touchProviderDisposables);
         }
@@ -127,8 +127,6 @@ namespace Suburb.Inputs
             
             if (pointers.Length == 0)
                 return;
-
-            gestureType = GestureType.DragStart;
             
             if (pointers.Length == 1)
             {
@@ -140,6 +138,8 @@ namespace Suburb.Inputs
             
             if (pointers.Length == 2)
                 member.PutDragStart((pointers[0].Delta + pointers[1].Delta) * 0.5f);
+            
+            gestureType = GestureType.Drag;
         }
 
         private void Drag()
