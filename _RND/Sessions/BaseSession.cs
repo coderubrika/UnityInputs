@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UniRx;
 
 namespace Suburb.Inputs
 {
@@ -17,8 +18,10 @@ namespace Suburb.Inputs
             Type memberType = typeof(TMember);
             if (members.TryGetValue(memberType, out object member))
                 return member as TMember;
-            
-            return null;
+
+            var newMember = new TMember();
+            members.Add(memberType, newMember);
+            return newMember;
         }
     }
 }
