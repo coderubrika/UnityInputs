@@ -10,21 +10,22 @@ namespace Suburb.Inputs
     {
         private readonly TouchProvider touchProvider;
         private readonly CompositeDisposable disposables = new();
-        private readonly Dictionary<int, PointerEventData> availableResources = new();
+        private readonly PointerEventData[] availableResources;
         
         private int usersCount;
 
         public ReactiveCommand OnAppearResources { get; } = new();
-        public bool HaveResources => availableResources.Values.FirstOrDefault(item => item != null) != null;
+        public bool HaveResources => availableResources.FirstOrDefault(item => item != null) != null;
 
         public TouchResourceDistributor(TouchProvider touchProvider)
         {
             this.touchProvider = touchProvider;
+            availableResources = new PointerEventData[touchProvider.SupportedTouches];
         }
         
         public IEnumerable<PointerEventData> GetAvailableResources()
         {
-            return availableResources.Values
+            return availableResources
                 .FilterNull();
         }
 
@@ -46,7 +47,7 @@ namespace Suburb.Inputs
                     {
                         availableResources.Fill(null);
                         foreach (var appearEvent in touchProvider.DownEvents)
-                            availableResources.AddOrReplace(appearEvent.Id, appearEvent);
+                            availableResources[appearEvent.Id] = appearEvent;
                         OnAppearResources.Execute();
                     })
                     .AddTo(disposables);
@@ -66,7 +67,7 @@ namespace Suburb.Inputs
             if (usersCount > 0)
                 return;
             
-            availableResources.Clear();
+            availableResources.Fill(null);
             disposables.Clear();
         }
     }
