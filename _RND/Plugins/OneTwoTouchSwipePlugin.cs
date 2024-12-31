@@ -23,7 +23,7 @@ namespace Suburb.Inputs
                 return false;
             
             compositor.First
-                .Where(_ => !isBothTouches)
+                .Where(id => !(id == -1 && compositor.PreviousFirst == -1) && !isBothTouches)
                 .Subscribe(SetFirstTouchId)
                 .AddTo(compositorDisposables);
 
