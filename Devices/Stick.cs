@@ -20,11 +20,11 @@ namespace Suburb.Inputs
         
         public ReactiveProperty<(Vector2 Direction, float Force)> OnDirectionAndForce { get; } = new();
         
-        public IDisposable Connect(SwipeGestureSession gestureSession)
+        public IDisposable Connect(SwipeMember swipe)
         {
             canvasGroup.alpha = 0;
             rectRadius = joystickOrigin.sizeDelta.x / 2;
-            gestureSession.OnDown
+            swipe.OnDown
                 .Subscribe(position =>
                 {
                     joystickOrigin.position = position;
@@ -38,7 +38,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(compositeDisposable);
 
-            gestureSession.OnDrag
+            swipe.OnDrag
                 .Subscribe(newDelta =>
                 {
                     currentPosition += newDelta;
@@ -54,7 +54,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(compositeDisposable);
             
-            gestureSession.OnUp
+            swipe.OnUp
                 .Subscribe(_ =>
                 {
                     OnDirectionAndForce.Value = (Vector2.zero, 0);

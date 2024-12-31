@@ -45,6 +45,7 @@ namespace Suburb.Inputs
         public void Unlink()
         {
             member = null;
+            compositor = null;
             touchProviderDisposables.Clear();
             compositorDisposables.Clear();
         }
