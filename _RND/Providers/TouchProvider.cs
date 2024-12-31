@@ -22,7 +22,11 @@ namespace Suburb.Inputs
         private IDisposable updateDisposable;
         private int usersCount;
         
+#if UNITY_EDITOR
+        public int SupportedTouches => 10;
+#else
         public int SupportedTouches => Touchscreen.current == null ? 0 : Touchscreen.current.touches.Count;
+#endif
         public ReactiveCommand OnDown { get; } = new();
         public ReactiveCommand OnUp { get; } = new();
         public ReactiveCommand OnDragStart { get; } = new();
