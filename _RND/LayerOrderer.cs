@@ -65,7 +65,6 @@ namespace Suburb.Inputs
         private void HandleSessions(IResourceDistributor distributor)
         {
             LinkedList<ISession> sessions = sessionsStore[distributor];
-            
             foreach (var session in sessions)
             {
                 if (!distributor.HaveResources)

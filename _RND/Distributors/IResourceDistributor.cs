@@ -7,7 +7,6 @@ namespace Suburb.Inputs
     {
         public ReactiveCommand OnAppearResources { get; }
         public bool HaveResources { get; }
-
         public IDisposable Enable();
     }
 }

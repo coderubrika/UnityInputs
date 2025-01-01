@@ -34,7 +34,7 @@ namespace Suburb.Inputs
             foreach (int id in ids)
                 availableResources[id] = null;
         }
-        
+
         public IDisposable Enable()
         {
             if (usersCount == 0)

@@ -1,5 +1,7 @@
 using System.Linq;
+using Suburb.Utils;
 using UniRx;
+using UnityEngine;
 
 namespace Suburb.Inputs
 {
@@ -29,10 +31,10 @@ namespace Suburb.Inputs
         {
             var resources = distributor.GetAvailableResources()
                 .Where(pointer => session.CheckIncludeInBounds(pointer.Position))
-                .Take(2 - TouchCount)
+                .Take(Mathf.Clamp(2 - TouchCount, 0, 2))
                 .Select(item => item.Id)
                 .ToArray();
-            
+
             if (resources.Length == 0)
                 return;
 
@@ -80,6 +82,16 @@ namespace Suburb.Inputs
             return TouchCount == 2;
         }
 
+        private void Reset()
+        {
+            PreviousFirst = First.Value;
+            PreviousSecond = -1;
+            Second.Value = -1;
+            First.Value = -1;
+            TouchCount = 0;
+            disposables.Clear();
+        }
+        
         private void UpHandler()
         {
             var pointers = touchProvider.UpEvents
@@ -87,42 +99,27 @@ namespace Suburb.Inputs
             
             if (pointers.Length == 0)
                 return;
-            
+
             if (pointers.Length == 1)
             {
                 if (TouchCount == 2)
                 {
+                    PreviousSecond = Second.Value;
+
                     if (First.Value == pointers[0].Id)
                     {
                         PreviousFirst = First.Value;
-                        PreviousSecond = Second.Value;
                         First.Value = Second.Value;
-                        Second.Value = -1;
                     }
-                    else
-                    {
-                        PreviousSecond = Second.Value;
-                        Second.Value = -1;
-                    }
-                    
+
+                    Second.Value = -1;
                     TouchCount = 1;
                 }
                 else
-                {
-                    PreviousFirst = First.Value;
-                    First.Value = -1;
-                    TouchCount = 0;
-                    disposables.Clear();
-                }
+                    Reset();
             }
             else
-            {
-                PreviousFirst = First.Value;
-                PreviousSecond = Second.Value;
-                First.Value = Second.Value = -1;
-                TouchCount = 0;
-                disposables.Clear();
-            }
+                Reset();
         }
     }
 }
