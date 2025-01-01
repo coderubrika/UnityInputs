@@ -8,9 +8,16 @@ namespace Suburb.Inputs
     {
         private readonly Dictionary<Type, object> members = new();
         
+        public bool IsBookResources { get; private set; }
+        
         public abstract IResourceDistributor[] GetResourceDistributors();
 
         public abstract void HandleResources(IResourceDistributor distributor);
+
+        public void SetBookResources(bool isBook)
+        {
+            IsBookResources = isBook;
+        }
 
         public TMember GetMember<TMember>() 
             where TMember : class, new()

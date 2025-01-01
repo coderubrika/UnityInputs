@@ -8,7 +8,6 @@ namespace Suburb.Inputs
         private readonly TouchProvider touchProvider;
         private readonly CompositeDisposable disposables = new();
         
-        private bool isBookResource;
         public int TouchCount { get; private set; }
         public int PreviousFirst { get; private set; } = -1;
         public int PreviousSecond { get; private set; } = -1;
@@ -37,7 +36,7 @@ namespace Suburb.Inputs
             if (resources.Length == 0)
                 return;
 
-            if (isBookResource)
+            if (session.IsBookResources)
                 distributor.SetBookedResources(resources);
 
             TouchCount += resources.Length;
