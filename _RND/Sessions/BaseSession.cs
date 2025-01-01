@@ -9,7 +9,6 @@ namespace Suburb.Inputs
         private readonly Dictionary<Type, object> members = new();
         
         public bool IsBookResources { get; private set; }
-        public string Name { get; set; }
 
         public abstract IResourceDistributor[] GetResourceDistributors();
 
