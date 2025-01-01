@@ -19,6 +19,11 @@ namespace Suburb.Inputs
         private float previousDistance;
         private float distance;
         
+        public TwoTouchZoomPlugin(TouchProvider touchProvider)
+        {
+            this.touchProvider = touchProvider;
+        }
+        
         public bool SetSender(object sender)
         {
             compositor = sender as OneTwoTouchPluginCompositor;

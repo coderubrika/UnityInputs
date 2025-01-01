@@ -9,7 +9,7 @@ namespace Suburb.Inputs
         private readonly RectTransform bounds;
         private readonly RectTransform[] excludedRects;
         
-        public RectBasedSession(RectTransform bounds, RectTransform[] excludedRects)
+        public RectBasedSession(RectTransform bounds, RectTransform[] excludedRects = null)
         {
             this.bounds = bounds;
             this.excludedRects = excludedRects;
