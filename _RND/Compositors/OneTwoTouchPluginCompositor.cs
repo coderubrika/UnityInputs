@@ -57,6 +57,7 @@ namespace Suburb.Inputs
                 Second.Value = resources[1];
                 
                 OnBothEnd.Execute();
+                return;
             }
 
             if (First.Value == -1)
@@ -95,9 +96,8 @@ namespace Suburb.Inputs
                     if (First.Value == pointers[0].Id)
                     {
                         PreviousFirst = First.Value;
-                        First.Value = Second.Value;
-                        
                         PreviousSecond = Second.Value;
+                        First.Value = Second.Value;
                         Second.Value = -1;
                     }
                     else
