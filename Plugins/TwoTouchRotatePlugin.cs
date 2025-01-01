@@ -30,11 +30,6 @@ namespace Suburb.Inputs
 
             if (compositor == null)
                 return false;
-
-            compositor.First
-                .Skip(1)
-                .Subscribe(SetFirstTouchId)
-                .AddTo(compositorDisposables);
             
             compositor.Second
                 .Skip(1)
@@ -58,8 +53,8 @@ namespace Suburb.Inputs
             touchProviderDisposables.Clear();
             compositorDisposables.Clear();
         }
-
-        private void SetFirstTouchId(int id)
+        
+        private void SetSecondTouchId(int id)
         {
             if (id == -1)
             {
@@ -67,30 +62,12 @@ namespace Suburb.Inputs
                 secondPosition = Vector2.zero;
                 previousAngle = 0;
                 angle = 0;
-                return;
-            }
-
-            if (id == compositor.PreviousSecond)
-            {
-                firstPosition = secondPosition;
-                secondPosition = Vector2.zero;
-                previousAngle = 0;
-                angle = 0;
-                return;
-            }
-            
-            firstPosition = touchProvider.DownEvents.First(item => item.Id == id).Position;
-        }
-        
-        private void SetSecondTouchId(int id)
-        {
-            if (id == -1)
-            {
                 touchProviderDisposables.Clear();
                 return;
             }
             
-            secondPosition = touchProvider.DownEvents.First(item => item.Id == id).Position;
+            firstPosition = touchProvider.GetEventData(compositor.First.Value).Position;
+            secondPosition = touchProvider.GetEventData(id).Position;
             previousAngle = Vector2.SignedAngle(secondPosition - firstPosition, Vector2.right);
             
             touchProvider.OnDragStart

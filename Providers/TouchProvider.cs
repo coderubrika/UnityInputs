@@ -80,7 +80,17 @@ namespace Suburb.Inputs
             
             return Disposable.Create(Disable);
         }
-
+        
+        public PointerEventData GetEventData(int touchId)
+        {
+            return new PointerEventData
+            {
+                Id = touchId,
+                Position = positions[touchId],
+                Delta = deltas[touchId],
+            };
+        }
+        
         private void Update()
         {
             ClearEvents();
@@ -172,16 +182,6 @@ namespace Suburb.Inputs
 
                 touchStates[touchId] = GestureType.None;
             }
-        }
-
-        private PointerEventData GetEventData(int touchId)
-        {
-            return new PointerEventData()
-            {
-                Id = touchId,
-                Position = positions[touchId],
-                Delta = deltas[touchId],
-            };
         }
 
         private void SendPointerDown(int touchId)
