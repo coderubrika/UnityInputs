@@ -63,7 +63,7 @@ namespace Suburb.Inputs
                 })
                 .AddTo(compositeDisposable);
 
-            return new DisposableObject(Disconnect);
+            return Disposable.Create(Disconnect);
         }
 
         private void Disconnect()
