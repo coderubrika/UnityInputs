@@ -7,38 +7,35 @@ namespace Suburb.Inputs
 {
     public class MouseProvider
     {
-        public enum MouseButton
-        {
-            Left,
-            Right,
-            Middle,
-        }
-        
         private readonly MouseControls inputControls;
 
         private IDisposable updateDisposable;
         private bool isEnabled;
         private int usersCount;
-        private Vector2 delta;
         
-        public ReactiveCommand<MouseButton> OnDown { get; } = new();
-        public ReactiveCommand<MouseButton> OnUp { get; } = new();
-        public ReactiveCommand<Vector2> OnMove { get; } = new();
-        public ReactiveCommand<float> OnZoom { get; } = new();
+        public ReactiveCommand<MouseButtonType> OnDown { get; } = new();
+        public ReactiveCommand<MouseButtonType> OnUp { get; } = new();
+        public ReactiveCommand OnMove { get; } = new();
+        public ReactiveCommand OnStopMove { get; } = new();
+        public ReactiveCommand OnZoom { get; } = new();
+        public ReactiveCommand OnStopZoom { get; } = new();
 
         public Vector2 Position { get; private set; }
+        public Vector2 Delta { get; private set; }
+        public float Zoom { get; private set; }
+        
         
         public MouseProvider()
         {
             inputControls = new MouseControls();
 
-            inputControls.Mouse.DownLeft.performed += _ => Down(MouseButton.Left);
-            inputControls.Mouse.DownRight.performed += _ => Down(MouseButton.Right);
-            inputControls.Mouse.DownMiddle.performed += _ => Down(MouseButton.Middle);
-            inputControls.Mouse.UpLeft.performed += _ => Up(MouseButton.Left);
-            inputControls.Mouse.UpRight.performed += _ => Up(MouseButton.Right);
-            inputControls.Mouse.UpMiddle.performed += _ => Up(MouseButton.Middle);
-            inputControls.Mouse.Zoom.performed += Zoom;
+            inputControls.Mouse.DownLeft.performed += _ => Down(MouseButtonType.Left);
+            inputControls.Mouse.DownRight.performed += _ => Down(MouseButtonType.Right);
+            inputControls.Mouse.DownMiddle.performed += _ => Down(MouseButtonType.Middle);
+            inputControls.Mouse.UpLeft.performed += _ => Up(MouseButtonType.Left);
+            inputControls.Mouse.UpRight.performed += _ => Up(MouseButtonType.Right);
+            inputControls.Mouse.UpMiddle.performed += _ => Up(MouseButtonType.Middle);
+            inputControls.Mouse.Zoom.performed += SetZoom;
         }
 
         private void Disable()
@@ -52,7 +49,7 @@ namespace Suburb.Inputs
                 return;
             
             Position = Vector2.zero;
-            delta = Vector2.zero;
+            Delta = Vector2.zero;
             updateDisposable?.Dispose();
             inputControls.Disable();
             isEnabled = false;
@@ -73,22 +70,22 @@ namespace Suburb.Inputs
             return Disposable.Create(Disable);
         }
 
-        private void Down(MouseButton button)
+        private void Down(MouseButtonType buttonType)
         {
             CalcPositionAndDelta();
-            OnDown.Execute(button);
+            OnDown.Execute(buttonType);
         }
 
-        private void Up(MouseButton button)
+        private void Up(MouseButtonType buttonType)
         {
             CalcPositionAndDelta();
-            OnUp.Execute(button);
+            OnUp.Execute(buttonType);
         }
 
-        private void Zoom(CallbackContext context)
+        private void SetZoom(CallbackContext context)
         {
-            var zoom = GetZoom(inputControls.Mouse.Zoom.ReadValue<Vector2>().y);
-            OnZoom.Execute(zoom);
+            Zoom = GetZoom(inputControls.Mouse.Zoom.ReadValue<Vector2>().y);
+            OnZoom.Execute();
         }
 
         private float GetZoom(float wheel)
@@ -99,10 +96,22 @@ namespace Suburb.Inputs
         private void CalcPositionAndDelta()
         {
             Vector2 newPosition = inputControls.Mouse.Position.ReadValue<Vector2>();
-            delta = newPosition - Position;
-            if (delta != Vector2.zero)
-                OnMove.Execute(delta);
+            var newDelta = newPosition - Position;
             Position = newPosition;
+            
+            if (newDelta == Vector2.zero && Delta != Vector2.zero)
+                OnStopMove.Execute();
+            
+            Delta = newDelta;
+            
+            if (Delta != Vector2.zero)
+                OnMove.Execute();
+
+            if (Zoom != 0)
+            {
+                Zoom = 0;
+                OnStopZoom.Execute();
+            }
         }
     }
 }

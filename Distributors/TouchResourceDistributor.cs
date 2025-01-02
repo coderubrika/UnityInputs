@@ -15,7 +15,7 @@ namespace Suburb.Inputs
         private int usersCount;
 
         public ReactiveCommand OnAppearResources { get; } = new();
-        public bool HaveResources => availableResources.FirstOrDefault(item => item != null) != null;
+        public bool HaveResources => availableResources.Any(item => item != null);
 
         public TouchResourceDistributor(TouchProvider touchProvider)
         {
