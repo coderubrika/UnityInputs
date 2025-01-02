@@ -15,8 +15,7 @@ namespace Suburb.Inputs
         private bool isAvailableZoom;
         private bool isAvailableMove;
         private int usersCount;
-
-        public ReactiveCommand OnNext = new();
+        
         public ReactiveCommand OnAppearResources { get; } = new();
         public bool HaveResources => availableButtons.Any(isAvailable => isAvailable) || isAvailableZoom || isAvailableMove;
 
