@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Suburb.Utils;
 using UniRx;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace Suburb.Inputs
 
         public override bool SetSender(object sender)
         {
-            if (base.SetSender(sender))
+            if (!base.SetSender(sender))
                 return false;
 
             idDisposable?.Dispose();
@@ -50,7 +51,7 @@ namespace Suburb.Inputs
             }
             
             gestureType = GestureType.Down;
-            var pointer = touchProvider.GetEventData(id);
+            var pointer = touchProvider.DownEvents.First(item => item.Id == id);
             Member.PutDown(pointer.Position);
             
             touchProvider.OnDragStart
@@ -78,7 +79,7 @@ namespace Suburb.Inputs
 
         private void Drag()
         {
-            var pointer = touchProvider.DragStartEvents
+            var pointer = touchProvider.DragEvents
                 .FirstOrDefault(item => item.Id == Compositor.Id.Value);
             
             if (pointer == null)

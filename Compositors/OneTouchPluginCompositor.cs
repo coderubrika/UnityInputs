@@ -35,6 +35,9 @@ namespace Suburb.Inputs
             if (pointer == null)
                 return;
             
+            if (session.IsBookResources)
+                distributor.SetBookedResources(new[]{pointer.Id});
+            
             PreviousId = Id.Value;
             Id.Value = pointer.Id;
             upDisposable?.Dispose();
