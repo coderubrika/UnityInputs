@@ -5,5 +5,8 @@ namespace Suburb.Inputs
         public IResourceDistributor Distributor { get; }
         public void Handle();
         public bool CheckBusy();
+
+        public bool SetupSession(ISession session);
+        public void Reset();
     }
 }

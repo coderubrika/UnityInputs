@@ -5,28 +5,26 @@ using UniRx;
 
 namespace Suburb.Inputs
 {
-    public abstract class PluginCompositor<TResourceDistributor, TSession> : IPluginCompositor
+    public abstract class PluginCompositor<TResourceDistributor, TSession, TPlugin> : IPluginCompositor
         where TResourceDistributor : IResourceDistributor
-        where TSession : ISession
+        where TSession : class, ISession
+        where TPlugin : IInputPlugin
     {
         protected readonly TResourceDistributor distributor;
-
-        protected readonly LinkedList<IInputPlugin> plugins = new();
-
-        protected TSession session;
+        protected readonly LinkedList<TPlugin> plugins = new();
+        protected TSession Session { get; private set; }
         
         public IResourceDistributor Distributor => distributor;
         
-        protected PluginCompositor(TResourceDistributor distributor, TSession session)
+        protected PluginCompositor(TResourceDistributor distributor)
         {
             this.distributor = distributor;
-            this.session = session;
         }
         
-        public IDisposable Link<TMember>(IInputPlugin plugin)
+        public IDisposable Link<TMember>(TPlugin plugin)
             where TMember : class, new()
         {
-            if (!plugin.SetReceiver(session.GetMember<TMember>()))
+            if (!plugin.SetReceiver(Session.GetMember<TMember>()))
             {
                 this.LogError($"Can't link plugin typeOf '{plugin.GetType().Name}' " +
                               $"because it doesn't support the '{typeof(TMember).Name}' member");
@@ -53,5 +51,16 @@ namespace Suburb.Inputs
         public abstract void Handle();
 
         public abstract bool CheckBusy();
+        
+        public bool SetupSession(ISession session)
+        {
+            Session = session as TSession;
+            return Session != null;
+        }
+
+        public virtual void Reset()
+        {
+            Session = null;
+        }
     }
 }

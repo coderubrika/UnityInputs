@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Suburb.Utils;
 using UniRx;
 
 namespace Suburb.Inputs
@@ -11,11 +12,18 @@ namespace Suburb.Inputs
         
         public IDisposable AddCompositor(IPluginCompositor compositor)
         {
+            if (!compositor.SetupSession(this))
+            {
+                this.Log($"{compositor.GetType().Name} failed to setup with {GetType().Name}");
+                return Disposable.Empty;
+            }
+            
             if (compositorsStore.TryGetValue(compositor.Distributor, out var compositors))
             {
                 var node = compositors.AddFirst(compositor);
                 return Disposable.Create(() =>
                 {
+                    compositor.Reset();
                     compositors.Remove(node);
                     if (compositors.Count == 0)
                         compositorsStore.Remove(compositor.Distributor);
@@ -28,6 +36,7 @@ namespace Suburb.Inputs
 
             return Disposable.Create(() =>
             {
+                compositor.Reset();
                 newCompositors.Remove(newNode);
                 if (newCompositors.Count == 0)
                     compositorsStore.Remove(compositor.Distributor);

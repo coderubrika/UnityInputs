@@ -5,10 +5,8 @@ using UnityEngine;
 
 namespace Suburb.Inputs
 {
-    public class OneTouchPluginCompositor : PluginCompositor<TouchResourceDistributor, IPointerSession>
+    public class OneTouchPluginCompositor : TouchPluginCompositor
     {
-        private readonly TouchProvider touchProvider;
-        
         private IDisposable upDisposable;
         
         public ReactiveProperty<int> Id { get; } = new(-1);
@@ -16,11 +14,9 @@ namespace Suburb.Inputs
         
         public OneTouchPluginCompositor(
             TouchResourceDistributor distributor, 
-            TouchProvider touchProvider,
-            IPointerSession session) : 
-            base(distributor, session)
+            TouchProvider touchProvider) : 
+            base(distributor, touchProvider)
         {
-            this.touchProvider = touchProvider;
         }
 
         public override void Handle()
@@ -30,12 +26,12 @@ namespace Suburb.Inputs
 
             var pointer = distributor
                 .GetAvailableResources()
-                .FirstOrDefault(pointer => session.CheckIncludeInBounds(pointer.Position));
+                .FirstOrDefault(pointer => Session.CheckIncludeInBounds(pointer.Position));
             
             if (pointer == null)
                 return;
             
-            if (session.IsBookResources)
+            if (Session.IsBookResources)
                 distributor.SetBookedResources(new[]{pointer.Id});
             
             PreviousId = Id.Value;
@@ -61,6 +57,14 @@ namespace Suburb.Inputs
         public override bool CheckBusy()
         {
             return Id.Value != -1;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            PreviousId = Id.Value;
+            Id.Value = -1;
+            upDisposable?.Dispose();
         }
     }
 }

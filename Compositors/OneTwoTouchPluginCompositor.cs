@@ -5,9 +5,8 @@ using UnityEngine;
 
 namespace Suburb.Inputs
 {
-    public class OneTwoTouchPluginCompositor : PluginCompositor<TouchResourceDistributor, IPointerSession>
+    public class OneTwoTouchPluginCompositor : TouchPluginCompositor
     {
-        private readonly TouchProvider touchProvider;
         private readonly CompositeDisposable disposables = new();
         
         public int TouchCount { get; private set; }
@@ -20,17 +19,15 @@ namespace Suburb.Inputs
         
         public OneTwoTouchPluginCompositor(
             TouchProvider touchProvider,
-            TouchResourceDistributor distributor, 
-            IPointerSession session) 
-            : base(distributor, session)
+            TouchResourceDistributor distributor) 
+            : base(distributor, touchProvider)
         {
-            this.touchProvider = touchProvider;
         }
 
         public override void Handle()
         {
             var resources = distributor.GetAvailableResources()
-                .Where(pointer => session.CheckIncludeInBounds(pointer.Position))
+                .Where(pointer => Session.CheckIncludeInBounds(pointer.Position))
                 .Take(Mathf.Clamp(2 - TouchCount, 0, 2))
                 .Select(item => item.Id)
                 .ToArray();
@@ -38,7 +35,7 @@ namespace Suburb.Inputs
             if (resources.Length == 0)
                 return;
 
-            if (session.IsBookResources)
+            if (Session.IsBookResources)
                 distributor.SetBookedResources(resources);
 
             TouchCount += resources.Length;
@@ -82,7 +79,13 @@ namespace Suburb.Inputs
             return TouchCount == 2;
         }
 
-        private void Reset()
+        public override void Reset()
+        {
+            base.Reset();
+            ResetState();
+        }
+
+        private void ResetState()
         {
             PreviousFirst = First.Value;
             PreviousSecond = -1;
@@ -116,10 +119,10 @@ namespace Suburb.Inputs
                     TouchCount = 1;
                 }
                 else
-                    Reset();
+                    ResetState();
             }
             else
-                Reset();
+                ResetState();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Suburb.Inputs
         private readonly MouseProvider mouseProvider;
         
         private readonly CompositeDisposable disposables = new();
-        private readonly bool[] availableButtons = new bool [Enum.GetValues(typeof(MouseButtonType)).Length];
+        private readonly bool[] availableButtons = new bool[3];
         
         private bool isAvailableZoom;
         private bool isAvailableMove;
