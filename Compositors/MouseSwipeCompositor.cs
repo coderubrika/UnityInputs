@@ -1,4 +1,4 @@
-using System;
+using Suburb.Utils;
 using UniRx;
 
 namespace Suburb.Inputs
@@ -32,7 +32,7 @@ namespace Suburb.Inputs
             if (!distributor.CheckAvailabilityButton(buttonType)
                 || !session.CheckIncludeInBounds(mouseProvider.Position))
                 return;
-
+            
             mouseProvider.OnMove
                 .Subscribe(_ =>
                 {

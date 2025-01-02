@@ -52,11 +52,7 @@ namespace Suburb.Inputs
                     .AddTo(disposables);
                 
                 mouseProvider.OnUp
-                    .Subscribe(buttonType =>
-                    {
-                        availableButtons[(int)buttonType] = true;
-                        OnAppearResources.Execute();
-                    })
+                    .Subscribe(buttonType => availableButtons[(int)buttonType] = false)
                     .AddTo(disposables);
                 
                 mouseProvider.OnZoom
