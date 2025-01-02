@@ -1,4 +1,3 @@
-using Suburb.Utils;
 using UniRx;
 
 namespace Suburb.Inputs
@@ -58,7 +57,6 @@ namespace Suburb.Inputs
             
             gestureType = GestureType.Down;
             Member.PutDown(mouseProvider.Position);
-            
         }
 
         public override bool CheckBusy()

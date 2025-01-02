@@ -11,13 +11,14 @@ namespace Suburb.Inputs
         
         private readonly CompositeDisposable disposables = new();
         private readonly bool[] availableButtons = new bool[3];
-        
+
         private bool isAvailableZoom;
         private bool isAvailableMove;
         private int usersCount;
-        
+
+        public ReactiveCommand OnNext = new();
         public ReactiveCommand OnAppearResources { get; } = new();
-        public bool HaveResources => availableButtons.Any(isAvailable => isAvailable) || isAvailableZoom;
+        public bool HaveResources => availableButtons.Any(isAvailable => isAvailable) || isAvailableZoom || isAvailableMove;
 
         public MouseResourceDistributor(MouseProvider mouseProvider)
         {
@@ -30,11 +31,17 @@ namespace Suburb.Inputs
         
         public bool CheckAvailabilityZoom() => isAvailableZoom;
         
-        public void SetBookedZoom() => isAvailableZoom = false; 
+        public void BookZoom()
+        {
+            isAvailableZoom = false;
+        }
         
         public bool CheckAvailabilityMove() => isAvailableMove;
-        
-        public void SetBookedMove() => isAvailableMove = false; 
+
+        public void BookMove()
+        {
+            isAvailableMove = false;
+        } 
         
         public IDisposable Enable()
         {
@@ -63,10 +70,6 @@ namespace Suburb.Inputs
                     })
                     .AddTo(disposables);
                 
-                mouseProvider.OnStopZoom
-                    .Subscribe(_ => isAvailableZoom = false)
-                    .AddTo(disposables);
-                
                 mouseProvider.OnMove
                     .Subscribe(_ =>
                     {
@@ -74,16 +77,12 @@ namespace Suburb.Inputs
                         OnAppearResources.Execute();
                     })
                     .AddTo(disposables);
-                
-                mouseProvider.OnStopMove
-                    .Subscribe(_ => isAvailableMove = false)
-                    .AddTo(disposables);
             }
 
             usersCount += 1;
             return Disposable.Create(Disable);
         }
-        
+
         private void Disable()
         {
             if (usersCount == 0)

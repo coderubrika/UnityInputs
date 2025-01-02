@@ -6,7 +6,7 @@ namespace Suburb.Inputs
     {
         protected readonly MouseProvider mouseProvider;
         protected readonly MouseResourceDistributor distributor;
-
+        
         public BaseMouseCompositor(MouseProvider mouseProvider, MouseResourceDistributor distributor)
         {
             this.mouseProvider = mouseProvider;
@@ -31,7 +31,7 @@ namespace Suburb.Inputs
             return Session != null;
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             Session = null;
             Member = null;

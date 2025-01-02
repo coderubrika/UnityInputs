@@ -16,9 +16,7 @@ namespace Suburb.Inputs
         public ReactiveCommand<MouseButtonType> OnDown { get; } = new();
         public ReactiveCommand<MouseButtonType> OnUp { get; } = new();
         public ReactiveCommand OnMove { get; } = new();
-        public ReactiveCommand OnStopMove { get; } = new();
         public ReactiveCommand OnZoom { get; } = new();
-        public ReactiveCommand OnStopZoom { get; } = new();
 
         public Vector2 Position { get; private set; }
         public Vector2 Delta { get; private set; }
@@ -90,28 +88,17 @@ namespace Suburb.Inputs
 
         private float GetZoom(float wheel)
         {
-            return (150f + Mathf.Clamp(wheel, -100f, 100f)) / 150f;
+            return (360f + wheel) / 360f;
         }
         
         private void CalcPositionAndDelta()
         {
             Vector2 newPosition = inputControls.Mouse.Position.ReadValue<Vector2>();
-            var newDelta = newPosition - Position;
+            Delta = newPosition - Position;
             Position = newPosition;
-            
-            if (newDelta == Vector2.zero && Delta != Vector2.zero)
-                OnStopMove.Execute();
-            
-            Delta = newDelta;
             
             if (Delta != Vector2.zero)
                 OnMove.Execute();
-
-            if (Zoom != 0)
-            {
-                Zoom = 0;
-                OnStopZoom.Execute();
-            }
         }
     }
 }
