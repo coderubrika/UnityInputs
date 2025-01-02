@@ -3,34 +3,24 @@ using UniRx;
 
 namespace Suburb.Inputs
 {
-    public class MouseSwipeCompositor : IPluginCompositor
+    public class MouseSwipeCompositor : BaseMouseCompositor<SwipeMember, IPointerSession>
     {
-        private readonly MouseProvider mouseProvider;
-        private readonly MouseResourceDistributor distributor;
         private readonly MouseButtonType buttonType;
         
         private readonly CompositeDisposable disposables = new();
         
         private GestureType gestureType = GestureType.None;
-        private IPointerSession session;
-        private SwipeMember member;
-        
-        public MouseSwipeCompositor(
-            MouseProvider mouseProvider, 
-            MouseResourceDistributor distributor, 
-            MouseButtonType buttonType)
+
+        public MouseSwipeCompositor(MouseProvider mouseProvider, MouseResourceDistributor distributor, MouseButtonType buttonType) 
+            : base(mouseProvider, distributor)
         {
-            this.mouseProvider = mouseProvider;
-            this.distributor = distributor;
             this.buttonType = buttonType;
         }
 
-        public IResourceDistributor Distributor => distributor;
-
-        public void Handle()
+        public override void Handle()
         {
             if (!distributor.CheckAvailabilityButton(buttonType)
-                || !session.CheckIncludeInBounds(mouseProvider.Position))
+                || !Session.CheckIncludeInBounds(mouseProvider.Position))
                 return;
             
             mouseProvider.OnMove
@@ -38,7 +28,7 @@ namespace Suburb.Inputs
                 {
                     if (gestureType == GestureType.Down)
                     {
-                        member.PutDragStart(mouseProvider.Delta);
+                        Member.PutDragStart(mouseProvider.Delta);
                         gestureType = GestureType.Drag;
                         return;
                     }
@@ -46,7 +36,7 @@ namespace Suburb.Inputs
                     if (gestureType != GestureType.Drag)
                         return;
                     
-                    member.PutDrag(mouseProvider.Delta);
+                    Member.PutDrag(mouseProvider.Delta);
                 })
                 .AddTo(disposables);
 
@@ -55,40 +45,25 @@ namespace Suburb.Inputs
                 .Subscribe(_ =>
                 {
                     if (gestureType == GestureType.Drag)
-                        member.PutDragEnd();
+                        Member.PutDragEnd();
                     
                     gestureType = GestureType.None;
-                    member.PutUp(mouseProvider.Position);
+                    Member.PutUp(mouseProvider.Position);
                     disposables.Clear();
                 })
                 .AddTo(disposables);
             
-            if (session.IsBookResources)
+            if (Session.IsBookResources)
                 distributor.SetBookedButton(buttonType);
             
             gestureType = GestureType.Down;
-            member.PutDown(mouseProvider.Position);
+            Member.PutDown(mouseProvider.Position);
             
         }
 
-        public bool CheckBusy()
+        public override bool CheckBusy()
         {
             return gestureType != GestureType.None;
-        }
-
-        public bool SetupSession(ISession session)
-        {
-            this.session = session as IPointerSession;
-
-            if (session != null)
-                member = session.GetMember<SwipeMember>();
-            
-            return this.session != null;
-        }
-
-        public void Reset()
-        {
-            session = null;
         }
     }
 }
