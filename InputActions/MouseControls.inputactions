@@ -15,7 +15,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Down",
+                    "name": "DownLeft",
                     "type": "Button",
                     "id": "838a9734-0a2f-4657-98cd-e785088c6730",
                     "expectedControlType": "Button",
@@ -24,9 +24,45 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Up",
+                    "name": "DownRight",
+                    "type": "Button",
+                    "id": "d283b3d4-7d03-4576-bf67-8325e0e4d4d0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DownMiddle",
+                    "type": "Button",
+                    "id": "b33c0c39-ac85-4af7-b76d-1ba14a09e205",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UpLeft",
                     "type": "Button",
                     "id": "c342221a-882d-4fbd-97fe-cebf092118c0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UpRight",
+                    "type": "Button",
+                    "id": "bdbbd84c-451b-4904-af29-4ca04a3dabf7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UpMiddle",
+                    "type": "Button",
+                    "id": "88a5bbcb-6691-426e-a1da-7ed665d7eb8e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -79,7 +115,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Mouse",
-                    "action": "Down",
+                    "action": "DownLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -90,7 +126,7 @@
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "Mouse",
-                    "action": "Up",
+                    "action": "UpLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -124,6 +160,50 @@
                     "processors": "",
                     "groups": "Mouse",
                     "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "840d9c84-7b63-4604-88ff-ca9a9a15076f",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "DownRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d0a5a66e-5ea3-476c-924c-e6ad91156207",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "UpRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "55155f21-95ba-4915-9ec2-600be95d736c",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "DownMiddle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "19d3ea2f-6f34-49c2-a16f-042a523dfed7",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "UpMiddle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -39,7 +39,7 @@ namespace Suburb.Inputs
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Down"",
+                    ""name"": ""DownLeft"",
                     ""type"": ""Button"",
                     ""id"": ""838a9734-0a2f-4657-98cd-e785088c6730"",
                     ""expectedControlType"": ""Button"",
@@ -48,9 +48,45 @@ namespace Suburb.Inputs
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Up"",
+                    ""name"": ""DownRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""d283b3d4-7d03-4576-bf67-8325e0e4d4d0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DownMiddle"",
+                    ""type"": ""Button"",
+                    ""id"": ""b33c0c39-ac85-4af7-b76d-1ba14a09e205"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UpLeft"",
                     ""type"": ""Button"",
                     ""id"": ""c342221a-882d-4fbd-97fe-cebf092118c0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UpRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""bdbbd84c-451b-4904-af29-4ca04a3dabf7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UpMiddle"",
+                    ""type"": ""Button"",
+                    ""id"": ""88a5bbcb-6691-426e-a1da-7ed665d7eb8e"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -103,7 +139,7 @@ namespace Suburb.Inputs
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Mouse"",
-                    ""action"": ""Down"",
+                    ""action"": ""DownLeft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -114,7 +150,7 @@ namespace Suburb.Inputs
                     ""interactions"": ""Press(behavior=1)"",
                     ""processors"": """",
                     ""groups"": ""Mouse"",
-                    ""action"": ""Up"",
+                    ""action"": ""UpLeft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -150,6 +186,50 @@ namespace Suburb.Inputs
                     ""action"": ""Zoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""840d9c84-7b63-4604-88ff-ca9a9a15076f"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Mouse"",
+                    ""action"": ""DownRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d0a5a66e-5ea3-476c-924c-e6ad91156207"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": ""Mouse"",
+                    ""action"": ""UpRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""55155f21-95ba-4915-9ec2-600be95d736c"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Mouse"",
+                    ""action"": ""DownMiddle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""19d3ea2f-6f34-49c2-a16f-042a523dfed7"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": ""Mouse"",
+                    ""action"": ""UpMiddle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -171,8 +251,12 @@ namespace Suburb.Inputs
             // Mouse
             m_Mouse = asset.FindActionMap("Mouse", throwIfNotFound: true);
             m_Mouse_Position = m_Mouse.FindAction("Position", throwIfNotFound: true);
-            m_Mouse_Down = m_Mouse.FindAction("Down", throwIfNotFound: true);
-            m_Mouse_Up = m_Mouse.FindAction("Up", throwIfNotFound: true);
+            m_Mouse_DownLeft = m_Mouse.FindAction("DownLeft", throwIfNotFound: true);
+            m_Mouse_DownRight = m_Mouse.FindAction("DownRight", throwIfNotFound: true);
+            m_Mouse_DownMiddle = m_Mouse.FindAction("DownMiddle", throwIfNotFound: true);
+            m_Mouse_UpLeft = m_Mouse.FindAction("UpLeft", throwIfNotFound: true);
+            m_Mouse_UpRight = m_Mouse.FindAction("UpRight", throwIfNotFound: true);
+            m_Mouse_UpMiddle = m_Mouse.FindAction("UpMiddle", throwIfNotFound: true);
             m_Mouse_Id = m_Mouse.FindAction("Id", throwIfNotFound: true);
             m_Mouse_Delta = m_Mouse.FindAction("Delta", throwIfNotFound: true);
             m_Mouse_Zoom = m_Mouse.FindAction("Zoom", throwIfNotFound: true);
@@ -238,8 +322,12 @@ namespace Suburb.Inputs
         private readonly InputActionMap m_Mouse;
         private List<IMouseActions> m_MouseActionsCallbackInterfaces = new List<IMouseActions>();
         private readonly InputAction m_Mouse_Position;
-        private readonly InputAction m_Mouse_Down;
-        private readonly InputAction m_Mouse_Up;
+        private readonly InputAction m_Mouse_DownLeft;
+        private readonly InputAction m_Mouse_DownRight;
+        private readonly InputAction m_Mouse_DownMiddle;
+        private readonly InputAction m_Mouse_UpLeft;
+        private readonly InputAction m_Mouse_UpRight;
+        private readonly InputAction m_Mouse_UpMiddle;
         private readonly InputAction m_Mouse_Id;
         private readonly InputAction m_Mouse_Delta;
         private readonly InputAction m_Mouse_Zoom;
@@ -248,8 +336,12 @@ namespace Suburb.Inputs
             private @MouseControls m_Wrapper;
             public MouseActions(@MouseControls wrapper) { m_Wrapper = wrapper; }
             public InputAction @Position => m_Wrapper.m_Mouse_Position;
-            public InputAction @Down => m_Wrapper.m_Mouse_Down;
-            public InputAction @Up => m_Wrapper.m_Mouse_Up;
+            public InputAction @DownLeft => m_Wrapper.m_Mouse_DownLeft;
+            public InputAction @DownRight => m_Wrapper.m_Mouse_DownRight;
+            public InputAction @DownMiddle => m_Wrapper.m_Mouse_DownMiddle;
+            public InputAction @UpLeft => m_Wrapper.m_Mouse_UpLeft;
+            public InputAction @UpRight => m_Wrapper.m_Mouse_UpRight;
+            public InputAction @UpMiddle => m_Wrapper.m_Mouse_UpMiddle;
             public InputAction @Id => m_Wrapper.m_Mouse_Id;
             public InputAction @Delta => m_Wrapper.m_Mouse_Delta;
             public InputAction @Zoom => m_Wrapper.m_Mouse_Zoom;
@@ -265,12 +357,24 @@ namespace Suburb.Inputs
                 @Position.started += instance.OnPosition;
                 @Position.performed += instance.OnPosition;
                 @Position.canceled += instance.OnPosition;
-                @Down.started += instance.OnDown;
-                @Down.performed += instance.OnDown;
-                @Down.canceled += instance.OnDown;
-                @Up.started += instance.OnUp;
-                @Up.performed += instance.OnUp;
-                @Up.canceled += instance.OnUp;
+                @DownLeft.started += instance.OnDownLeft;
+                @DownLeft.performed += instance.OnDownLeft;
+                @DownLeft.canceled += instance.OnDownLeft;
+                @DownRight.started += instance.OnDownRight;
+                @DownRight.performed += instance.OnDownRight;
+                @DownRight.canceled += instance.OnDownRight;
+                @DownMiddle.started += instance.OnDownMiddle;
+                @DownMiddle.performed += instance.OnDownMiddle;
+                @DownMiddle.canceled += instance.OnDownMiddle;
+                @UpLeft.started += instance.OnUpLeft;
+                @UpLeft.performed += instance.OnUpLeft;
+                @UpLeft.canceled += instance.OnUpLeft;
+                @UpRight.started += instance.OnUpRight;
+                @UpRight.performed += instance.OnUpRight;
+                @UpRight.canceled += instance.OnUpRight;
+                @UpMiddle.started += instance.OnUpMiddle;
+                @UpMiddle.performed += instance.OnUpMiddle;
+                @UpMiddle.canceled += instance.OnUpMiddle;
                 @Id.started += instance.OnId;
                 @Id.performed += instance.OnId;
                 @Id.canceled += instance.OnId;
@@ -287,12 +391,24 @@ namespace Suburb.Inputs
                 @Position.started -= instance.OnPosition;
                 @Position.performed -= instance.OnPosition;
                 @Position.canceled -= instance.OnPosition;
-                @Down.started -= instance.OnDown;
-                @Down.performed -= instance.OnDown;
-                @Down.canceled -= instance.OnDown;
-                @Up.started -= instance.OnUp;
-                @Up.performed -= instance.OnUp;
-                @Up.canceled -= instance.OnUp;
+                @DownLeft.started -= instance.OnDownLeft;
+                @DownLeft.performed -= instance.OnDownLeft;
+                @DownLeft.canceled -= instance.OnDownLeft;
+                @DownRight.started -= instance.OnDownRight;
+                @DownRight.performed -= instance.OnDownRight;
+                @DownRight.canceled -= instance.OnDownRight;
+                @DownMiddle.started -= instance.OnDownMiddle;
+                @DownMiddle.performed -= instance.OnDownMiddle;
+                @DownMiddle.canceled -= instance.OnDownMiddle;
+                @UpLeft.started -= instance.OnUpLeft;
+                @UpLeft.performed -= instance.OnUpLeft;
+                @UpLeft.canceled -= instance.OnUpLeft;
+                @UpRight.started -= instance.OnUpRight;
+                @UpRight.performed -= instance.OnUpRight;
+                @UpRight.canceled -= instance.OnUpRight;
+                @UpMiddle.started -= instance.OnUpMiddle;
+                @UpMiddle.performed -= instance.OnUpMiddle;
+                @UpMiddle.canceled -= instance.OnUpMiddle;
                 @Id.started -= instance.OnId;
                 @Id.performed -= instance.OnId;
                 @Id.canceled -= instance.OnId;
@@ -331,8 +447,12 @@ namespace Suburb.Inputs
         public interface IMouseActions
         {
             void OnPosition(InputAction.CallbackContext context);
-            void OnDown(InputAction.CallbackContext context);
-            void OnUp(InputAction.CallbackContext context);
+            void OnDownLeft(InputAction.CallbackContext context);
+            void OnDownRight(InputAction.CallbackContext context);
+            void OnDownMiddle(InputAction.CallbackContext context);
+            void OnUpLeft(InputAction.CallbackContext context);
+            void OnUpRight(InputAction.CallbackContext context);
+            void OnUpMiddle(InputAction.CallbackContext context);
             void OnId(InputAction.CallbackContext context);
             void OnDelta(InputAction.CallbackContext context);
             void OnZoom(InputAction.CallbackContext context);

@@ -30,8 +30,8 @@ namespace Suburb.Inputs
         {
             inputControls = new MouseControls();
 
-            inputControls.Mouse.Down.performed += PointerDown;
-            inputControls.Mouse.Up.performed += PointerUp;
+            //.Mouse.Down.performed += PointerDown;
+            //inputControls.Mouse.Up.performed += PointerUp;
             inputControls.Mouse.Zoom.performed += Zoom;
             inputControls.Mouse.Delta.performed += PointerMove;
         }
