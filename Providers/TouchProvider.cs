@@ -69,7 +69,7 @@ namespace Suburb.Inputs
 
         public IDisposable Enable()
         {
-            if (SupportedTouches == 0)
+            if (SupportedTouches == 0 || Touchscreen.current == null)
                 return Disposable.Empty;
 
             if (usersCount == 0)
