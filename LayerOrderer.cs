@@ -20,13 +20,18 @@ namespace Suburb.Inputs
             }
 
             IDisposable addDisposable = session.OnDistributorAdded
-                .Subscribe(distributor => AddDistributorFromSession(session, distributor));
+                .Subscribe(distributor =>
+                {
+                    GetSessionsByDistributorFromSession(distributor)
+                        .AddFirst(session);
+                });
             
             IDisposable removeDisposable = session.OnDistributorRemoved
                 .Subscribe(distributor => RemoveDistributorFromSession(session, distributor));
             
             foreach (var distributor in session.GetResourceDistributors())
-                AddDistributorFromSession(session, distributor);
+                GetSessionsByDistributorFromSession(distributor)
+                    .AddFirst(session);
             
             return Disposable.Create(() =>
             {
@@ -37,24 +42,144 @@ namespace Suburb.Inputs
                     RemoveDistributorFromSession(session, distributor);
             });
         }
+        
+        public IDisposable ConnectLast(ISession session)
+        {
+            if (!sessionsStore.Add(session))
+            {
+                this.LogError("Session already connected");
+                return Disposable.Empty;
+            }
 
-        private void AddDistributorFromSession(ISession session, IResourceDistributor distributor)
+            IDisposable addDisposable = session.OnDistributorAdded
+                .Subscribe(distributor =>
+                {
+                    GetSessionsByDistributorFromSession(distributor)
+                        .AddFirst(session);
+                });
+            
+            IDisposable removeDisposable = session.OnDistributorRemoved
+                .Subscribe(distributor => RemoveDistributorFromSession(session, distributor));
+            
+            foreach (var distributor in session.GetResourceDistributors())
+                GetSessionsByDistributorFromSession(distributor)
+                    .AddLast(session);
+            
+            return Disposable.Create(() =>
+            {
+                addDisposable.Dispose();
+                removeDisposable.Dispose();
+                sessionsStore.Remove(session);
+                foreach (var distributor in session.GetResourceDistributors())
+                    RemoveDistributorFromSession(session, distributor);
+            });
+        }
+        
+        public IDisposable ConnectBefore(ISession sessionOrigin, ISession sessionTarget)
+        {
+            if (!sessionsStore.Add(sessionTarget))
+            {
+                this.LogError("Session already connected");
+                return Disposable.Empty;
+            }
+
+            if (!sessionsStore.Contains(sessionOrigin))
+            {
+                this.LogError("Session origin not connected");
+                return Disposable.Empty;
+            }
+            
+            IDisposable addDisposable = sessionTarget.OnDistributorAdded
+                .Subscribe(distributor =>
+                {
+                    GetSessionsByDistributorFromSession(distributor)
+                        .AddFirst(sessionTarget);
+                });
+            
+            IDisposable removeDisposable = sessionTarget.OnDistributorRemoved
+                .Subscribe(distributor => RemoveDistributorFromSession(sessionTarget, distributor));
+
+            foreach (var distributor in sessionTarget.GetResourceDistributors())
+            {
+                var sessionsList = GetSessionsByDistributorFromSession(distributor);
+                var originNode = sessionsList.Find(sessionOrigin);
+
+                if (originNode == null)
+                    sessionsList.AddFirst(sessionTarget);
+                else
+                    sessionsList.AddBefore(originNode, sessionTarget);
+            }
+            
+            return Disposable.Create(() =>
+            {
+                addDisposable.Dispose();
+                removeDisposable.Dispose();
+                sessionsStore.Remove(sessionTarget);
+                foreach (var distributor in sessionTarget.GetResourceDistributors())
+                    RemoveDistributorFromSession(sessionTarget, distributor);
+            });
+        }
+        
+        public IDisposable ConnectAfter(ISession sessionOrigin, ISession sessionTarget)
+        {
+            if (!sessionsStore.Add(sessionTarget))
+            {
+                this.LogError("Session already connected");
+                return Disposable.Empty;
+            }
+
+            if (!sessionsStore.Contains(sessionOrigin))
+            {
+                this.LogError("Session origin not connected");
+                return Disposable.Empty;
+            }
+            
+            IDisposable addDisposable = sessionTarget.OnDistributorAdded
+                .Subscribe(distributor =>
+                {
+                    GetSessionsByDistributorFromSession(distributor)
+                        .AddFirst(sessionTarget);
+                });
+            
+            IDisposable removeDisposable = sessionTarget.OnDistributorRemoved
+                .Subscribe(distributor => RemoveDistributorFromSession(sessionTarget, distributor));
+
+            foreach (var distributor in sessionTarget.GetResourceDistributors())
+            {
+                var sessionsList = GetSessionsByDistributorFromSession(distributor);
+                var originNode = sessionsList.Find(sessionOrigin);
+
+                if (originNode == null)
+                    sessionsList.AddFirst(sessionTarget);
+                else
+                    sessionsList.AddAfter(originNode, sessionTarget);
+            }
+            
+            return Disposable.Create(() =>
+            {
+                addDisposable.Dispose();
+                removeDisposable.Dispose();
+                sessionsStore.Remove(sessionTarget);
+                foreach (var distributor in sessionTarget.GetResourceDistributors())
+                    RemoveDistributorFromSession(sessionTarget, distributor);
+            });
+        }
+        
+        private LinkedList<ISession> GetSessionsByDistributorFromSession(IResourceDistributor distributor)
         {
             if (distributorsSessionsStore.TryGetValue(distributor, out var sessionsInDistributor))
-                sessionsInDistributor.AddFirst(session);
-            else
+                return sessionsInDistributor;
+            var newList = new LinkedList<ISession>();
+            distributorsSessionsStore.Add(distributor, newList);
+            
+            if (!distributorSubscriptions.ContainsKey(distributor))
             {
-                var newList = new LinkedList<ISession>();
-                newList.AddFirst(session);
-                distributorsSessionsStore.Add(distributor, newList);
-
-                if (distributorSubscriptions.ContainsKey(distributor)) 
-                    return;
-                    
                 IDisposable disposable = distributor.OnAppearResources
                     .Subscribe(_ => HandleSessions(distributor));
                 distributorSubscriptions.Add(distributor, (disposable, distributor.Enable()));
             }
+
+            return newList;
         }
 
         private void RemoveDistributorFromSession(ISession session, IResourceDistributor distributor)
