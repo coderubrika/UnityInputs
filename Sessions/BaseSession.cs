@@ -9,6 +9,11 @@ namespace Suburb.Inputs
         private readonly Dictionary<Type, object> members = new();
         
         public bool IsBookResources { get; private set; }
+        public bool IsPreventNext { get; private set;}
+
+        public ReactiveCommand<IResourceDistributor> OnDistributorAdded { get; } = new();
+        
+        public ReactiveCommand<IResourceDistributor> OnDistributorRemoved { get; } = new();
 
         public abstract IResourceDistributor[] GetResourceDistributors();
 
@@ -17,6 +22,11 @@ namespace Suburb.Inputs
         public void SetBookResources(bool isBook)
         {
             IsBookResources = isBook;
+        }
+        
+        public void SetPreventNext(bool isPreventNext)
+        {
+            IsPreventNext = isPreventNext;
         }
 
         public TMember GetMember<TMember>() 

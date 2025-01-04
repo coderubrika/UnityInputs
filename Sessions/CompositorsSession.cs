@@ -26,20 +26,27 @@ namespace Suburb.Inputs
                     compositor.Reset();
                     compositors.Remove(node);
                     if (compositors.Count == 0)
+                    {
                         compositorsStore.Remove(compositor.Distributor);
+                        OnDistributorRemoved.Execute(compositor.Distributor);
+                    }
                 });
             }
 
             var newCompositors = new LinkedList<IPluginCompositor>();
             var newNode = newCompositors.AddFirst(compositor);
             compositorsStore.Add(compositor.Distributor, newCompositors);
-
+            OnDistributorAdded.Execute(compositor.Distributor);
+            
             return Disposable.Create(() =>
             {
                 compositor.Reset();
                 newCompositors.Remove(newNode);
                 if (newCompositors.Count == 0)
+                {
                     compositorsStore.Remove(compositor.Distributor);
+                    OnDistributorRemoved.Execute(compositor.Distributor);
+                }
             });
         }
         
