@@ -26,8 +26,7 @@ namespace Suburb.Inputs
 
         public override void Handle()
         {
-            var resources = distributor.GetAvailableResources()
-                .Where(pointer => Session.CheckIncludeInBounds(pointer.Position))
+            var resources = ReceivedPointers
                 .Take(Mathf.Clamp(2 - TouchCount, 0, 2))
                 .Select(item => item.Id)
                 .ToArray();

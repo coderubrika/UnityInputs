@@ -28,9 +28,7 @@ namespace Suburb.Inputs
                 return;
             }
 
-            var pointer = distributor
-                .GetAvailableResources()
-                .FirstOrDefault(pointer => Session.CheckIncludeInBounds(pointer.Position));
+            var pointer = ReceivedPointers.FirstOrDefault();
 
             if (pointer == null)
             {
