@@ -207,9 +207,6 @@ namespace Suburb.Inputs
                     break;
                 
                 session.HandleResources(distributor);
-                
-                if (session.IsPreventNext)
-                    break;
 
                 if (nextNode.List == null)
                 {

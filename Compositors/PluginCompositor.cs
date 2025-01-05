@@ -15,7 +15,7 @@ namespace Suburb.Inputs
         protected TSession Session { get; private set; }
         
         public IResourceDistributor Distributor => distributor;
-        
+
         protected PluginCompositor(TResourceDistributor distributor)
         {
             this.distributor = distributor;

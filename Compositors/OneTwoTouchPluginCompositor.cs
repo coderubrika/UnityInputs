@@ -35,7 +35,7 @@ namespace Suburb.Inputs
             if (resources.Length == 0)
                 return;
 
-            if (Session.IsBookResources)
+            if (Session.IsPreventNext || Session.IsBookResources)
                 distributor.SetBookedResources(resources);
 
             TouchCount += resources.Length;
@@ -79,14 +79,9 @@ namespace Suburb.Inputs
             return TouchCount == 2;
         }
 
-        public override void Reset()
+        protected override void ResetState()
         {
-            base.Reset();
-            ResetState();
-        }
-
-        private void ResetState()
-        {
+            base.ResetState();
             PreviousFirst = First.Value;
             PreviousSecond = -1;
             Second.Value = -1;
@@ -97,7 +92,8 @@ namespace Suburb.Inputs
         
         private void UpHandler()
         {
-            var pointers = touchProvider.UpEvents
+            HandleUpFinal();
+            var pointers = UpPointers
                 .Where(item => item.Id == First.Value || item.Id == Second.Value).ToArray();
             
             if (pointers.Length == 0)

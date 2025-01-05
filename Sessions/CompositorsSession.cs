@@ -58,13 +58,8 @@ namespace Suburb.Inputs
         public override void HandleResources(IResourceDistributor distributor)
         {
             var compositors = compositorsStore[distributor];
-            foreach (var compositor in compositors)
-            {
-                if (compositor.CheckBusy())
-                    continue;
-                
+            foreach (var compositor in compositors.Where(compositor => !compositor.CheckBusy() || IsPreventNext))
                 compositor.Handle();
-            }
         }
     }
 }

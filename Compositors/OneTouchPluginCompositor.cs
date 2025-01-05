@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using UniRx;
-using UnityEngine;
 
 namespace Suburb.Inputs
 {
@@ -21,37 +20,45 @@ namespace Suburb.Inputs
 
         public override void Handle()
         {
+            base.Handle();
+
             if (Id.Value != -1)
+            {
+                HandleFinal();
                 return;
+            }
 
             var pointer = distributor
                 .GetAvailableResources()
                 .FirstOrDefault(pointer => Session.CheckIncludeInBounds(pointer.Position));
-            
+
             if (pointer == null)
+            {
+                HandleFinal();
                 return;
+            }
             
             if (Session.IsBookResources)
-                distributor.SetBookedResources(new[]{pointer.Id});
+                distributor.SetBookedResource(pointer.Id);
             
             PreviousId = Id.Value;
             Id.Value = pointer.Id;
             upDisposable?.Dispose();
             upDisposable = touchProvider.OnUp
                 .Subscribe(_ => UpHandler());
+            HandleFinal();
         }
 
         private void UpHandler()
         {
+            HandleUpFinal();
             var pointer = touchProvider.UpEvents
                 .FirstOrDefault(item => item.Id == Id.Value);
             
             if (pointer == null)
                 return;
 
-            PreviousId = Id.Value;
-            Id.Value = -1;
-            upDisposable?.Dispose();
+            ResetState();
         }
         
         public override bool CheckBusy()
@@ -59,9 +66,9 @@ namespace Suburb.Inputs
             return Id.Value != -1;
         }
 
-        public override void Reset()
+        protected override void ResetState()
         {
-            base.Reset();
+            base.ResetState();
             PreviousId = Id.Value;
             Id.Value = -1;
             upDisposable?.Dispose();

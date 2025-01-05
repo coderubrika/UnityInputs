@@ -34,6 +34,11 @@ namespace Suburb.Inputs
             foreach (int id in ids)
                 availableResources[id] = null;
         }
+        
+        public void SetBookedResource(int id)
+        {
+            availableResources[id] = null;
+        }
 
         public IDisposable Enable()
         {
