@@ -210,6 +210,16 @@ namespace Suburb.Inputs
                 
                 if (session.IsPreventNext)
                     break;
+
+                if (nextNode.List == null)
+                {
+                    if (distributorsSessionsStore.TryGetValue(distributor, out sessions))
+                    {
+                        nextNode = sessions.First;
+                        continue;
+                    }
+                    break;
+                }
                 
                 nextNode = nextNode.Next;
             }
