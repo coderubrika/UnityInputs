@@ -22,5 +22,7 @@ namespace Suburb.Inputs
             
             return excludedRects.IsNullOrEmpty() || !excludedRects.Any(rect => rect.Contain(point));
         }
+        
+        public Vector2 TransformVector(Vector2 delta) => bounds.TransformVector(delta);
     }
 }
