@@ -24,5 +24,6 @@ namespace Suburb.Inputs
         }
         
         public Vector2 TransformVector(Vector2 delta) => bounds.TransformVector(delta);
+        public Vector2 TransformPoint(Vector2 position) => bounds.TransformPoint(position);
     }
 }
