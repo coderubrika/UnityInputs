@@ -23,7 +23,7 @@ namespace Suburb.Inputs
                 excludedRects.AddFirst(rectTransform);
         }
         
-        public bool CheckIncludeInBounds(Vector2 point)
+        public virtual bool CheckIncludeInBounds(Vector2 point)
         {
             if (bounds != null && !bounds.Contain(point))
                 return false;
