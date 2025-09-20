@@ -18,10 +18,11 @@ namespace Suburb.Inputs
         private Vector2 currentPosition;
         private Vector2 currentDelta;
         
-        public ReactiveProperty<(Vector2 Direction, float Force)> OnDirectionAndForce { get; } = new();
+        public ReactiveProperty<(Vector2 Direction, float Force)> DirectionAndForce { get; } = new();
         
         public IDisposable Connect(SwipeMember swipe)
         {
+            DirectionAndForce.Value = (Vector2.zero, 0);
             canvasGroup.alpha = 0;
             rectRadius = joystickOrigin.sizeDelta.x / 2;
             swipe.OnDown
@@ -32,7 +33,7 @@ namespace Suburb.Inputs
                     
                     currentPosition = position;
                     currentDelta = Vector2.zero;
-                    OnDirectionAndForce.Value = (Vector2.zero, 0);
+                    DirectionAndForce.Value = (Vector2.zero, 0);
                     DOTween.Kill(canvasGroup);
                     canvasGroup.DOFade(1, 0.4f);
                 })
@@ -50,14 +51,14 @@ namespace Suburb.Inputs
                     magnitude = magnitude > rectRadius ? rectRadius : magnitude;
                     anchoredPosition = normAncPos * magnitude;
                     joystickHandler.anchoredPosition = anchoredPosition;
-                    OnDirectionAndForce.Value = (normAncPos, magnitude / rectRadius);
+                    DirectionAndForce.Value = (normAncPos, magnitude / rectRadius);
                 })
                 .AddTo(compositeDisposable);
             
             swipe.OnUp
                 .Subscribe(_ =>
                 {
-                    OnDirectionAndForce.Value = (Vector2.zero, 0);
+                    DirectionAndForce.Value = (Vector2.zero, 0);
                     DOTween.Kill(canvasGroup);
                     canvasGroup.DOFade(0, 0.4f);
                 })
